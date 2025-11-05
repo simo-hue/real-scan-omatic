@@ -248,9 +248,27 @@ const Index = () => {
       console.log('Analysis complete. Total text length:', accumulatedText.length);
       console.log('Parsing JSON response...');
 
+      // Clean up potential markdown code blocks
+      let cleanedText = accumulatedText.trim();
+      
+      // Remove markdown code blocks if present
+      if (cleanedText.startsWith('```')) {
+        console.log('Detected markdown code block, extracting JSON...');
+        const lines = cleanedText.split('\n');
+        // Remove first line (```json or ```)
+        lines.shift();
+        // Remove last line if it's ```)
+        if (lines[lines.length - 1].trim() === '```') {
+          lines.pop();
+        }
+        cleanedText = lines.join('\n').trim();
+      }
+      
+      console.log('Cleaned text (first 200 chars):', cleanedText.substring(0, 200));
+
       // Parse the JSON response
       try {
-        const parsedResult = JSON.parse(accumulatedText);
+        const parsedResult = JSON.parse(cleanedText);
         console.log('✅ JSON parsed successfully:', parsedResult);
         
         setResult({

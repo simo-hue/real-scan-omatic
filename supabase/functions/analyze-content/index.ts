@@ -169,16 +169,17 @@ ${fftInfo}
   }
 }
 
-🔴 REGOLE CRITICHE:
+🔴 REGOLE CRITICHE OBBLIGATORIE:
 1. USA TERMINOLOGIA TECNICA PRECISA
 2. QUANTIFICA quando possibile (angoli, percentuali, coordinate)
 3. Se INCERTO, AMMETTILO e spiega perché
 4. REASONING + DETAILS devono contenere FATTI SPECIFICI, non generalizzazioni
 5. Ogni "details" deve avere MINIMO le parole indicate
-6. Rispondi ESCLUSIVAMENTE con JSON valido, nessun testo prima/dopo
+6. **CRITICO**: Rispondi SOLO con JSON puro. NON usare backticks o markdown. NON aggiungere testo prima o dopo il JSON. INIZIA con { e TERMINA con }
 7. Usa <INTEGER> per score (no decimali)
+8. **VERIFICA**: La tua risposta deve iniziare ESATTAMENTE con il carattere "{"
 
-INIZIA ANALISI FORENSE:`,
+INIZIA ANALISI FORENSE (RISPOSTA DEVE INIZIARE CON "{"):`
             },
             {
               type: 'image_url',
@@ -308,17 +309,18 @@ CONTENUTO HTML: ${htmlContent.substring(0, 12000)}
   }
 }
 
-🔴 REGOLE CRITICHE:
+🔴 REGOLE CRITICHE OBBLIGATORIE:
 1. USA TERMINOLOGIA FACT-CHECKING PROFESSIONALE
 2. CITA esempi TESTUALI quando rilevi bias/manipolazione
 3. VERIFICA almeno 2-3 claim principali tramite lateral reading
 4. Se dominio sconosciuto, AMMETTI limitazioni analisi
 5. Ogni "details" deve avere MINIMO parole indicate
 6. Reasoning deve contenere CLAIM SPECIFICI verificati/smentiti
-7. Rispondi ESCLUSIVAMENTE con JSON valido
+7. **CRITICO**: Rispondi SOLO con JSON puro. NON usare backticks o markdown. NON aggiungere testo prima o dopo il JSON. INIZIA con { e TERMINA con }
 8. Usa INTEGER per score (no decimali)
+9. **VERIFICA**: La tua risposta deve iniziare ESATTAMENTE con il carattere "{"
 
-INIZIA FACT-CHECK:`,
+INIZIA FACT-CHECK (RISPOSTA DEVE INIZIARE CON "{"):`
         },
       ];
     } else if (fileType.startsWith('text/') || fileType === 'application/pdf') {
@@ -442,17 +444,18 @@ ${content.substring(0, 6000)}
   }
 }
 
-🔴 REGOLE CRITICHE:
+🔴 REGOLE CRITICHE OBBLIGATORIE:
 1. CITA esempi TESTUALI per bias/fallacies (virgolettati specifici)
 2. IDENTIFICA claims fattualmente verificabili e VERIFICA 
 3. USA terminologia linguistica/retorica PRECISA
 4. Se rilevi AI-generation, SPECIFICA markers trovati
 5. Ogni "details" deve avere MINIMO parole indicate
 6. Reasoning deve analizzare CLAIMS SPECIFICI (non generici)
-7. Rispondi ESCLUSIVAMENTE con JSON valido
+7. **CRITICO**: Rispondi SOLO con JSON puro. NON usare backticks o markdown. NON aggiungere testo prima o dopo il JSON. INIZIA con { e TERMINA con }
 8. INTEGER per score (no decimali)
+9. **VERIFICA**: La tua risposta deve iniziare ESATTAMENTE con il carattere "{"
 
-INIZIA ANALISI FORENSE TESTUALE:`,
+INIZIA ANALISI FORENSE TESTUALE (RISPOSTA DEVE INIZIARE CON "{"):`
         },
       ];
     } else if (fileType.startsWith('video/') || fileType === 'video/url') {
@@ -591,16 +594,18 @@ VIDEO ANALIZZATO: ${videoRef}
   }
 }
 
-🔴 REGOLE CRITICHE:
+🔴 REGOLE CRITICHE OBBLIGATORIE:
 1. AMMETTI limitazioni analisi automatica video
 2. FORNISCI guida STEP-BY-STEP actionable per utente
 3. CITA tools specifici (nomi, URLs se noti)
 4. REASONING deve dare PRIORITY LIST verifiche
 5. Details MUST contenere PROCEDURE concrete
 6. Score 50 = NEUTRAL (impossibile automated analysis)
-7. JSON valido, INTEGER score
+7. **CRITICO**: Rispondi SOLO con JSON puro. NON usare backticks o markdown. NON aggiungere testo prima o dopo il JSON. INIZIA con { e TERMINA con }
+8. JSON valido, INTEGER score
+9. **VERIFICA**: La tua risposta deve iniziare ESATTAMENTE con il carattere "{"
 
-GENERA GUIDA ANALISI:`,
+GENERA GUIDA ANALISI (RISPOSTA DEVE INIZIARE CON "{"):`
         },
       ];
     } else {
