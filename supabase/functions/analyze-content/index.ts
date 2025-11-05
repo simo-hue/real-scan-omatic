@@ -17,23 +17,25 @@ serve(async (req) => {
 
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     if (!LOVABLE_API_KEY) {
+      console.error('LOVABLE_API_KEY is not configured');
       throw new Error('LOVABLE_API_KEY is not configured');
     }
 
     let messages: any[] = [];
 
     if (fileType.startsWith('image/')) {
+      console.log('Processing image file');
       messages = [
         {
           role: 'system',
-          content: 'Sei un esperto analista di immagini. Fornisci un\'analisi dettagliata e strutturata dell\'immagine in italiano, descrivendo: 1) Soggetti e oggetti principali 2) Composizione e layout 3) Colori e illuminazione 4) Stile e tecnica 5) Emozioni e atmosfera trasmesse. Usa paragrafi chiari e separati.',
+          content: 'Sei un esperto analista di immagini specializzato nel riconoscimento di deepfake e contenuti manipolati. Fornisci un\'analisi dettagliata e strutturata dell\'immagine in italiano, descrivendo: 1) Soggetti e oggetti principali 2) Possibili segni di manipolazione digitale (artefatti, incongruenze di illuminazione, texture anomale) 3) Composizione e layout 4) Colori e illuminazione 5) Autenticità percepita. Usa paragrafi chiari e separati. Sii specifico sui segnali di deepfake se presenti.',
         },
         {
           role: 'user',
           content: [
             {
               type: 'text',
-              text: 'Analizza questa immagine in modo dettagliato e strutturato.',
+              text: 'Analizza questa immagine in modo dettagliato, prestando particolare attenzione a possibili segni di manipolazione o generazione AI.',
             },
             {
               type: 'image_url',
@@ -45,10 +47,11 @@ serve(async (req) => {
         },
       ];
     } else if (fileType.startsWith('text/') || fileType === 'application/pdf') {
+      console.log('Processing text/pdf file');
       messages = [
         {
           role: 'system',
-          content: 'Sei un esperto analista di testo. Fornisci un\'analisi dettagliata e strutturata del contenuto in italiano, includendo: 1) Tema e argomento principale 2) Tono e stile di scrittura 3) Punti chiave e messaggi principali 4) Struttura e organizzazione 5) Pubblico target e scopo. Usa paragrafi chiari e separati.',
+          content: 'Sei un esperto analista di testo. Fornisci un\'analisi dettagliata e strutturata del contenuto in italiano, includendo: 1) Tema e argomento principale 2) Tono e stile di scrittura 3) Punti chiave e messaggi principali 4) Struttura e organizzazione 5) Pubblico target e scopo 6) Possibili incongruenze o segnali di contenuto generato da AI. Usa paragrafi chiari e separati.',
         },
         {
           role: 'user',
@@ -56,17 +59,23 @@ serve(async (req) => {
         },
       ];
     } else if (fileType.startsWith('video/')) {
+      console.log('Processing video file');
       messages = [
         {
           role: 'system',
-          content: 'Sei un esperto analista video. Fornisci suggerimenti dettagliati su cosa analizzare in un video in italiano.',
+          content: 'Sei un esperto analista video specializzato nel riconoscimento di deepfake. Fornisci suggerimenti dettagliati su cosa analizzare in un video in italiano, includendo: sincronizzazione labiale, movimenti oculari, coerenza dell\'illuminazione, artefatti digitali, e altri segnali di manipolazione.',
         },
         {
           role: 'user',
-          content: `Fornisci un'analisi dettagliata e consigli per un file video chiamato: ${fileName}`,
+          content: `Fornisci un'analisi dettagliata e consigli per un file video chiamato: ${fileName}. Spiega quali segnali di deepfake cercare.`,
         },
       ];
+    } else {
+      console.error('Unsupported file type:', fileType);
+      throw new Error(`Tipo di file non supportato: ${fileType}`);
     }
+
+    console.log('Calling AI API...');
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -84,10 +93,18 @@ serve(async (req) => {
     if (!response.ok) {
       const errorText = await response.text();
       console.error('AI API error:', response.status, errorText);
-      throw new Error(`AI API error: ${response.status}`);
+      
+      if (response.status === 429) {
+        throw new Error('Limite di richieste superato. Riprova tra qualche minuto.');
+      }
+      if (response.status === 402) {
+        throw new Error('Crediti esauriti. Aggiungi crediti al tuo workspace Lovable.');
+      }
+      
+      throw new Error(`Errore AI API: ${response.status} - ${errorText}`);
     }
 
-    console.log('Streaming AI response...');
+    console.log('Streaming AI response started successfully');
 
     // Return the streaming response directly to the client
     return new Response(response.body, {

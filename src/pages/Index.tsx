@@ -63,8 +63,21 @@ const Index = () => {
         }
       );
 
-      if (!response.ok || !response.body) {
-        throw new Error('Failed to start analysis stream');
+      if (!response.ok) {
+        let errorMessage = 'Errore durante l\'analisi del file';
+        try {
+          const errorData = await response.json();
+          if (errorData.error) {
+            errorMessage = errorData.error;
+          }
+        } catch {
+          errorMessage = `Errore HTTP: ${response.status} ${response.statusText}`;
+        }
+        throw new Error(errorMessage);
+      }
+      
+      if (!response.body) {
+        throw new Error('Nessuna risposta dal server');
       }
 
       const reader = response.body.getReader();

@@ -98,12 +98,12 @@ export const FileUpload = ({ onFilesSelected }: FileUploadProps) => {
           </div>
           
           <div className="space-y-2">
-            <p className="text-xl font-semibold text-foreground">
+            <div className="text-xl font-semibold text-foreground">
               Trascina i file qui
-            </p>
-            <p className="text-sm text-muted-foreground">
+            </div>
+            <div className="text-sm text-muted-foreground">
               oppure clicca per selezionare
-            </p>
+            </div>
           </div>
           
           <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
@@ -116,10 +116,10 @@ export const FileUpload = ({ onFilesSelected }: FileUploadProps) => {
 
       {selectedFiles.length > 0 && (
         <div className="space-y-3">
-          <p className="text-sm font-semibold text-foreground flex items-center gap-2">
+          <div className="text-sm font-semibold text-foreground flex items-center gap-2">
             <div className="h-5 w-1 bg-gradient-to-b from-primary to-accent-purple rounded-full" />
             File selezionati ({selectedFiles.length})
-          </p>
+          </div>
           <div className="space-y-2">
             {selectedFiles.map((file, index) => (
               <div
