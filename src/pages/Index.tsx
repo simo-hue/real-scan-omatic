@@ -10,6 +10,30 @@ import { extractExifData } from '@/utils/exifExtractor';
 import { analyzeImageFFT, FFTAnalysisResult } from '@/utils/fftAnalyzer';
 import { analyzeImageELA, ELAAnalysisResult } from '@/utils/elaAnalyzer';
 
+interface ReverseSearchResult {
+  webEntities: Array<{
+    description: string;
+    score: number;
+  }>;
+  fullMatchingImages: Array<{
+    url: string;
+    score: number;
+  }>;
+  partialMatchingImages: Array<{
+    url: string;
+    score: number;
+  }>;
+  pagesWithMatchingImages: Array<{
+    url: string;
+    score: number;
+    pageTitle?: string;
+  }>;
+  oldestUrl: string | null;
+  oldestDate: string | null;
+  knownWebsites: string[];
+  bestGuessLabel: string | null;
+}
+
 interface AnalysisResultData {
   fileName: string;
   fileType: string;
@@ -24,6 +48,7 @@ interface AnalysisResultData {
   };
   fftAnalysis?: FFTAnalysisResult;
   elaAnalysis?: ELAAnalysisResult;
+  reverseSearchResult?: ReverseSearchResult;
   evaluation: {
     score: number;
     verdict: string;
@@ -133,6 +158,8 @@ const Index = () => {
       };
 
       // Perform FFT and ELA analysis for images
+      let reverseSearchResult: ReverseSearchResult | undefined;
+      
       if (fileType.startsWith('image/') && !selectedUrl && selectedFiles[0]) {
         console.log('Performing FFT analysis...');
         const fftResult = await analyzeImageFFT(selectedFiles[0]);
@@ -144,6 +171,32 @@ const Index = () => {
         
         if (fftResult) requestPayload.fftAnalysis = fftResult;
         if (elaResult) requestPayload.elaAnalysis = elaResult;
+        
+        // Perform reverse image search
+        console.log('Performing reverse image search...');
+        try {
+          const reverseSearchUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/reverse-search`;
+          const reverseSearchResponse = await fetch(reverseSearchUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+            },
+            body: JSON.stringify({
+              imageBase64: content.split(',')[1] || content, // Remove data URL prefix if present
+            }),
+          });
+          
+          if (reverseSearchResponse.ok) {
+            reverseSearchResult = await reverseSearchResponse.json();
+            console.log('Reverse search result:', reverseSearchResult);
+          } else {
+            console.warn('Reverse search failed:', reverseSearchResponse.status);
+          }
+        } catch (reverseSearchError) {
+          console.error('Error during reverse search:', reverseSearchError);
+          // Continue with analysis even if reverse search fails
+        }
       }
 
       console.log('Preparing request:', {
@@ -278,6 +331,7 @@ const Index = () => {
           exifData,
           fftAnalysis: (requestPayload as any).fftAnalysis,
           elaAnalysis: (requestPayload as any).elaAnalysis,
+          reverseSearchResult,
           evaluation: {
             score: parsedResult.evaluation?.score || 0,
             verdict: parsedResult.evaluation?.verdict || '',
@@ -300,6 +354,8 @@ const Index = () => {
           description: accumulatedText,
           exifData,
           fftAnalysis: (requestPayload as any).fftAnalysis,
+          elaAnalysis: (requestPayload as any).elaAnalysis,
+          reverseSearchResult,
           evaluation: {
             score: 0,
             verdict: 'Analisi non strutturata',

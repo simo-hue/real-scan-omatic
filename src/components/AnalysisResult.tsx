@@ -5,6 +5,30 @@ import { Separator } from '@/components/ui/separator';
 import { FFTAnalysisResult } from '@/utils/fftAnalyzer';
 import { ELAAnalysisResult } from '@/utils/elaAnalyzer';
 
+interface ReverseSearchResult {
+  webEntities: Array<{
+    description: string;
+    score: number;
+  }>;
+  fullMatchingImages: Array<{
+    url: string;
+    score: number;
+  }>;
+  partialMatchingImages: Array<{
+    url: string;
+    score: number;
+  }>;
+  pagesWithMatchingImages: Array<{
+    url: string;
+    score: number;
+    pageTitle?: string;
+  }>;
+  oldestUrl: string | null;
+  oldestDate: string | null;
+  knownWebsites: string[];
+  bestGuessLabel: string | null;
+}
+
 interface AnalysisResultProps {
   result: {
     fileName: string;
@@ -20,6 +44,7 @@ interface AnalysisResultProps {
     };
     fftAnalysis?: FFTAnalysisResult;
     elaAnalysis?: ELAAnalysisResult;
+    reverseSearchResult?: ReverseSearchResult;
     evaluation: {
       score: number;
       verdict: string;
@@ -242,6 +267,123 @@ export const AnalysisResult = ({ result, isLoading }: AnalysisResultProps) => {
                       </div>
                     ))}
                   </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Reverse Image Search */}
+        {result.reverseSearchResult && (
+          <div className="p-5 glass-effect rounded-xl border border-border/50 hover:border-primary/30 transition-all duration-300">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="h-4 w-1 bg-gradient-to-b from-blue-500 to-cyan-500 rounded-full" />
+              <p className="text-xs font-semibold text-blue-500 uppercase tracking-wide">
+                Reverse Image Search
+              </p>
+            </div>
+            <div className="ml-3 space-y-4">
+              {/* Best Guess Label */}
+              {result.reverseSearchResult.bestGuessLabel && (
+                <div className="p-3 bg-blue-500/10 rounded-lg border border-blue-500/20">
+                  <p className="text-xs text-muted-foreground mb-1">Etichetta identificata:</p>
+                  <p className="text-sm font-semibold text-blue-500">{result.reverseSearchResult.bestGuessLabel}</p>
+                </div>
+              )}
+
+              {/* Oldest URL */}
+              {result.reverseSearchResult.oldestUrl && (
+                <div className="p-3 bg-muted/30 rounded-lg">
+                  <p className="text-xs text-muted-foreground mb-2">
+                    <span className="font-semibold">URL Originale più antico:</span>
+                    {result.reverseSearchResult.oldestDate && (
+                      <span className="ml-2 text-primary">({result.reverseSearchResult.oldestDate})</span>
+                    )}
+                  </p>
+                  <a 
+                    href={result.reverseSearchResult.oldestUrl} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-xs text-primary hover:underline break-all"
+                  >
+                    {result.reverseSearchResult.oldestUrl}
+                  </a>
+                </div>
+              )}
+
+              {/* Web Entities */}
+              {result.reverseSearchResult.webEntities.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-xs font-semibold text-muted-foreground">
+                    Entità Web Identificate:
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {result.reverseSearchResult.webEntities.slice(0, 6).map((entity, idx) => (
+                      <Badge 
+                        key={idx} 
+                        variant="secondary"
+                        className="text-xs"
+                      >
+                        {entity.description} ({(entity.score * 100).toFixed(0)}%)
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Known Websites */}
+              {result.reverseSearchResult.knownWebsites.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-xs font-semibold text-muted-foreground">
+                    Presenza su Siti Noti ({result.reverseSearchResult.knownWebsites.length}):
+                  </p>
+                  <div className="grid grid-cols-2 gap-2">
+                    {result.reverseSearchResult.knownWebsites.slice(0, 6).map((site, idx) => (
+                      <div key={idx} className="p-2 bg-muted/30 rounded text-xs text-foreground truncate">
+                        {site}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Pages with Matching Images */}
+              {result.reverseSearchResult.pagesWithMatchingImages.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-xs font-semibold text-muted-foreground">
+                    Pagine con Immagini Corrispondenti ({result.reverseSearchResult.pagesWithMatchingImages.length}):
+                  </p>
+                  <div className="space-y-2 max-h-40 overflow-y-auto">
+                    {result.reverseSearchResult.pagesWithMatchingImages.slice(0, 5).map((page, idx) => (
+                      <div key={idx} className="p-2 bg-muted/30 rounded border border-border/30">
+                        <div className="flex items-center justify-between gap-2">
+                          <a 
+                            href={page.url} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-xs text-primary hover:underline truncate flex-1"
+                            title={page.url}
+                          >
+                            {page.pageTitle || page.url}
+                          </a>
+                          <Badge variant="outline" className="text-xs shrink-0">
+                            {(page.score * 100).toFixed(0)}%
+                          </Badge>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Full Matching Images */}
+              {result.reverseSearchResult.fullMatchingImages.length > 0 && (
+                <div className="p-3 bg-green-500/10 rounded-lg border border-green-500/20">
+                  <p className="text-xs text-muted-foreground">
+                    <span className="font-semibold text-green-500">
+                      {result.reverseSearchResult.fullMatchingImages.length} corrispondenze esatte
+                    </span> trovate sul web
+                  </p>
                 </div>
               )}
             </div>
