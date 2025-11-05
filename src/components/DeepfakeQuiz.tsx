@@ -6,11 +6,11 @@ import { Badge } from "./ui/badge";
 import { CheckCircle2, XCircle, RotateCcw, Award } from "lucide-react";
 
 // Import images
-import deepfakeCeo from "@/assets/quiz/deepfake-ceo.jpg";
-import deepfakePolitician from "@/assets/quiz/deepfake-politician.jpg";
-import deepfakeCelebrity from "@/assets/quiz/deepfake-celebrity.jpg";
+import fakeCeoDeepfake from "@/assets/quiz/fake-ceo-deepfake.jpg";
+import realPoliticianPress from "@/assets/quiz/real-politician-press.jpg";
+import fakeCelebrityScam from "@/assets/quiz/fake-celebrity-scam.jpg";
 import realInterview from "@/assets/quiz/real-interview.jpg";
-import realFamily from "@/assets/quiz/real-family.jpg";
+import realFamilyPark from "@/assets/quiz/real-family-park.jpg";
 import realSports from "@/assets/quiz/real-sports.jpg";
 import deepfakeFamilyMessage from "@/assets/quiz/deepfake-family-message.jpg";
 import realPressConference from "@/assets/quiz/real-press-conference.jpg";
@@ -30,75 +30,75 @@ const questionBank: QuizQuestion[] = [
   // Easy questions
   {
     id: 1,
-    scenario: "Immagine di un politico che fa una dichiarazione controversa",
-    detailedDescription: "In questa immagine, vediamo un politico di alto profilo durante quella che sembra essere una conferenza stampa ufficiale. Il politico è ritratto mentre fa dichiarazioni su una questione controversa di politica nazionale. La qualità dell'immagine è buona e il setting sembra professionale con microfoni e sfondo istituzionale.",
-    imageUrl: deepfakePolitician,
+    scenario: "Foto professionale di un CEO durante un annuncio aziendale",
+    detailedDescription: "Questa immagine mostra un CEO in abito formale con sfondo ufficio sfocato. L'illuminazione è professionale e la posa è composta. Il soggetto appare con un sorriso sicuro e professionale.",
+    imageUrl: fakeCeoDeepfake,
     isDeepfake: true,
     difficulty: "easy",
     hints: [
-      "Osserva la mano alzata - il gesto sembra naturale o leggermente rigido?",
-      "Guarda i dettagli del viso - la texture della pelle sembra naturale?",
-      "Nota lo sfondo blu sfocato - i bordi del viso rimangono nitidi o c'è sfocatura innaturale?"
+      "Osserva la texture della pelle - sembra eccessivamente liscia e uniforme?",
+      "Gli occhi hanno riflessi naturali o sembrano troppo perfetti?",
+      "Lo sfondo sfocato sembra naturale o presenta anomalie?"
     ],
-    explanation: "Questo è un deepfake generato da AI. Sebbene la qualità generale sia alta, ci sono segnali rivelatori: il gesto della mano alzata appare leggermente innaturale e rigido. I bordi del viso, specialmente vicino ai capelli contro lo sfondo blu, mostrano una leggera inconsistenza. La texture della pelle appare troppo uniforme senza le naturali imperfezioni. Questo tipo di immagini AI-generated manca delle sottili imperfezioni e variazioni che caratterizzano le foto autentiche."
+    explanation: "Questo è un deepfake generato da AI. Segnali chiave: la pelle appare innaturalmente levigata senza pori visibili, le proporzioni del viso sono leggermente troppo simmetriche (caratteristica tipica dell'AI), e lo sfondo presenta elementi sfocati che non seguono una logica prospettica coerente."
   },
   {
     id: 2,
-    scenario: "Foto professionale di un CEO che annuncia nuove politiche aziendali",
-    detailedDescription: "Questa immagine mostra il CEO di una grande azienda tecnologica in quello che sembra essere il suo ufficio aziendale. L'illuminazione è professionale e l'ambiente suggerisce un contesto corporativo di alto livello. Il CEO appare fiducioso e professionale in abito formale.",
-    imageUrl: deepfakeCeo,
-    isDeepfake: true,
+    scenario: "Immagine di un politico durante una conferenza stampa ufficiale",
+    detailedDescription: "Questa foto mostra un politico al podio con microfoni, bandiere americane sullo sfondo, e illuminazione professionale tipica di un evento ufficiale.",
+    imageUrl: realPoliticianPress,
+    isDeepfake: false,
     difficulty: "easy",
     hints: [
-      "Esamina la texture della pelle - sembra naturale o eccessivamente levigata?",
-      "Guarda lo sfondo sfocato dell'ufficio - i dettagli architettonici sono coerenti?",
-      "Osserva gli occhi - la riflessione della luce in entrambi gli occhi è identica e naturale?"
+      "Le rughe e i dettagli della pelle sono naturali e realistici?",
+      "L'illuminazione crea ombre coerenti sul viso e sugli oggetti?",
+      "I microfoni e lo sfondo mostrano dettagli realistici?"
     ],
-    explanation: "Questa è un'immagine generata da AI. I segnali principali includono: la pelle appare innaturalmente perfetta e levigata, priva delle normali imperfezioni, pori e texture naturale. Lo sfondo, sebbene sfocato professionalmente, mostra elementi architettonici che non seguono una logica spaziale coerente. La simmetria quasi perfetta del viso e l'uniformità dell'illuminazione sono tipiche delle generazioni AI. Le immagini reali mostrano sempre piccole asimmetrie naturali e variazioni nella texture della pelle."
+    explanation: "Questa è un'immagine reale. Indicatori chiave: texture naturale della pelle con rughe visibili, illuminazione professionale che crea ombre coerenti, dettagli realistici dei microfoni e delle bandiere, e proporzioni naturali del corpo e del viso."
   },
   {
     id: 3,
     scenario: "Immagine di intervista registrata in studio professionale",
-    detailedDescription: "Questa è un'immagine di un'intervista televisiva registrata in uno studio broadcasting professionale. Due persone sono sedute in un ambiente ben illuminato, con telecamere professionali visibili. La scena mostra un momento dell'intervista con gesti ed espressioni appropriate al contesto della discussione.",
+    detailedDescription: "Questa è un'immagine di un'intervista televisiva registrata in uno studio broadcasting professionale. Due persone sono sedute in un ambiente ben illuminato, con telecamere professionali visibili.",
     imageUrl: realInterview,
     isDeepfake: false,
     difficulty: "easy",
     hints: [
-      "Osserva l'illuminazione professionale dello studio - è coerente su entrambe le persone?",
-      "Le attrezzature visibili (telecamere, luci) sono reali e coerenti con uno studio TV?",
-      "I movimenti e le posture delle due persone sembrano naturali e spontanei?"
+      "L'illuminazione professionale dello studio è coerente su entrambe le persone?",
+      "Le attrezzature visibili (telecamere, luci) sono reali e coerenti?",
+      "I movimenti e le posture sembrano naturali?"
     ],
-    explanation: "Questo contenuto è autentico. Gli indicatori chiave includono: l'illuminazione professionale dello studio è perfettamente coerente su entrambi i soggetti, creando le tipiche ombre controllate di un ambiente broadcast. Le attrezzature visibili nello sfondo (telecamere, luci, monitors) mostrano dettagli realistici e coerenti. Le posture e i gesti delle due persone mostrano la naturale asimmetria e spontaneità delle interazioni umane reali. La qualità dell'immagine è uniforme e non mostra i tipici artefatti di compressione o generazione AI."
+    explanation: "Questo contenuto è autentico. L'illuminazione professionale dello studio è perfettamente coerente, le attrezzature visibili nello sfondo mostrano dettagli realistici, e le posture delle persone mostrano naturale asimmetria e spontaneità."
   },
   {
     id: 4,
-    scenario: "Foto di famiglia condivisa sui social media",
-    detailedDescription: "Una tipica foto di famiglia scattata all'aperto in un parco durante una giornata di sole. La famiglia appare felice e rilassata, con sorrisi naturali. La foto ha le caratteristiche tipiche di una fotografia smartphone: colori vivaci, luce naturale del giorno, e una composizione informale ma piacevole.",
-    imageUrl: realFamily,
+    scenario: "Foto di famiglia scattata in un parco all'aperto",
+    detailedDescription: "Una foto di famiglia scattata all'aperto durante una giornata di sole. La famiglia appare felice e rilassata con sorrisi naturali e luce naturale.",
+    imageUrl: realFamilyPark,
     isDeepfake: false,
     difficulty: "easy",
     hints: [
-      "Guarda l'illuminazione naturale del sole - crea ombre coerenti su tutti i membri della famiglia?",
-      "Lo sfondo sfocato del parco mostra una naturale profondità di campo?",
-      "Le espressioni e i sorrisi mostrano variazioni naturali tra i diversi membri?"
+      "L'illuminazione naturale del sole crea ombre coerenti?",
+      "Lo sfondo sfocato del parco mostra naturale profondità di campo?",
+      "Le espressioni mostrano variazioni naturali tra le persone?"
     ],
-    explanation: "Questa è una fotografia genuina. L'illuminazione naturale del sole crea ombre coerenti e realistiche su tutti e quattro i membri della famiglia, con la luce che proviene dalla stessa direzione. Lo sfondo sfocato mostra una naturale profondità di campo tipica delle fotocamere moderne. Le texture della pelle mostrano dettagli naturali, imperfezioni e variazioni. Ogni persona ha un'espressione unica e naturale - i bambini con sorrisi spontanei, gli adulti con espressioni autentiche. La composizione informale e le piccole imperfezioni (pieghe nei vestiti, capelli mossi dal vento) sono tipiche delle foto di famiglia autentiche."
+    explanation: "Questa è una fotografia genuina. L'illuminazione naturale crea ombre coerenti, lo sfondo mostra naturale profondità di campo, le texture della pelle sono naturali, e ogni persona ha espressioni uniche e autentiche."
   },
   
   // Medium questions
   {
     id: 5,
-    scenario: "Immagine di una celebrità che promuove un prodotto finanziario sui social",
-    detailedDescription: "Questa immagine mostra una celebrità nota in un ambiente casual che sembra essere un caffè o un ristorante. La celebrità appare mentre tiene un prodotto e sorride, come se stesse parlando di un'opportunità di investimento. L'immagine è stata condivisa sui social media con migliaia di visualizzazioni e sembra provenire dall'account verificato della celebrità.",
-    imageUrl: deepfakeCelebrity,
+    scenario: "Immagine di una persona che promuove un prodotto sui social",
+    detailedDescription: "Questa immagine mostra una persona sorridente in un ambiente casual che tiene un prodotto. L'immagine sembra essere stata condivisa sui social media come endorsement.",
+    imageUrl: fakeCelebrityScam,
     isDeepfake: true,
     difficulty: "medium",
     hints: [
-      "La pelle del viso sembra innaturalmente perfetta, priva di pori o imperfezioni?",
-      "Osserva il prodotto tenuto in mano - l'interazione sembra naturale o posata?",
-      "Lo sfondo sfocato del caffè mostra elementi coerenti o ci sono anomalie?"
+      "La pelle del viso sembra innaturalmente perfetta e liscia?",
+      "Il sorriso appare naturale o troppo perfetto e artificiale?",
+      "L'interazione con il prodotto sembra genuina o posata?"
     ],
-    explanation: "Questo è un deepfake sofisticato generato da AI. I segnali rivelatori includono: la texture della pelle è innaturalmente liscia e priva di imperfezioni, pori o variazioni naturali. Il sorriso è perfetto ma manca delle microespressioni sottili tipiche delle emozioni genuine. Il modo in cui il prodotto è tenuto in mano sembra posato e artificiale. Inoltre, dal punto di vista contestuale, è altamente insolito che celebrità affidabili promuovano prodotti finanziari rischiosi - questo è un segnale d'allarme comune nelle truffe con deepfake."
+    explanation: "Questo è un deepfake sofisticato generato da AI. Segnali rivelatori: la texture della pelle è innaturalmente liscia e priva di imperfezioni naturali, il sorriso è perfetto ma manca delle microespressioni sottili, e il modo in cui il prodotto è tenuto sembra artificiale. Questo tipo di immagini è comunemente usato in truffe online."
   },
   {
     id: 6,
