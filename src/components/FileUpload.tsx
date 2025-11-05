@@ -122,11 +122,11 @@ export const FileUpload = ({ onFilesSelected, onUrlSubmit }: FileUploadProps) =>
     try {
       console.log('Converting HEIC file:', file.name);
       
-      // Convert HEIC to JPEG blob
+      // Convert HEIC to JPEG blob with optimized quality for faster conversion
       const convertedBlob = await heic2any({
         blob: file,
         toType: 'image/jpeg',
-        quality: 0.9
+        quality: 0.8 // Reduced from 0.9 for faster conversion
       });
       
       // Handle array of blobs (heic2any can return array)
