@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import { Upload, X, FileText, Image as ImageIcon, Video, Link as LinkIcon, CheckCircle2 } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { Input } from '@/components/ui/input';
@@ -14,13 +14,29 @@ interface FileUploadProps {
   onUrlSubmit: (url: string) => void;
 }
 
+interface FileWithPreview {
+  file: File;
+  preview?: string;
+}
+
 export const FileUpload = ({ onFilesSelected, onUrlSubmit }: FileUploadProps) => {
   const [dragActive, setDragActive] = useState(false);
-  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [selectedFiles, setSelectedFiles] = useState<FileWithPreview[]>([]);
   const [urlInput, setUrlInput] = useState('');
   const [acceptedUrl, setAcceptedUrl] = useState<string>('');
   const [isValidatingUrl, setIsValidatingUrl] = useState(false);
   const { toast } = useToast();
+
+  // Cleanup preview URLs when component unmounts or files change
+  useEffect(() => {
+    return () => {
+      selectedFiles.forEach(item => {
+        if (item.preview) {
+          URL.revokeObjectURL(item.preview);
+        }
+      });
+    };
+  }, [selectedFiles]);
 
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -63,7 +79,17 @@ export const FileUpload = ({ onFilesSelected, onUrlSubmit }: FileUploadProps) =>
     });
 
     if (validFiles.length > 0) {
-      setSelectedFiles(prev => [...prev, ...validFiles]);
+      const filesWithPreview = validFiles.map(file => {
+        const isImage = file.type.startsWith('image/') || 
+                       file.name.match(/\.(heic|heif|bmp|tiff|tif|svg|webp|avif)$/i);
+        
+        return {
+          file,
+          preview: isImage ? URL.createObjectURL(file) : undefined
+        };
+      });
+      
+      setSelectedFiles(prev => [...prev, ...filesWithPreview]);
       onFilesSelected(validFiles);
     }
   };
@@ -75,7 +101,13 @@ export const FileUpload = ({ onFilesSelected, onUrlSubmit }: FileUploadProps) =>
   };
 
   const removeFile = (index: number) => {
-    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
+    setSelectedFiles(prev => {
+      const item = prev[index];
+      if (item.preview) {
+        URL.revokeObjectURL(item.preview);
+      }
+      return prev.filter((_, i) => i !== index);
+    });
   };
 
   const getFileIcon = (type: string) => {
@@ -197,20 +229,31 @@ export const FileUpload = ({ onFilesSelected, onUrlSubmit }: FileUploadProps) =>
                 File selezionati ({selectedFiles.length})
               </div>
               <div className="space-y-2">
-                {selectedFiles.map((file, index) => (
+                {selectedFiles.map((item, index) => (
                   <div
                     key={index}
                     className="flex items-center gap-3 p-4 glass-effect rounded-xl hover:border-primary/50 transition-all duration-300 group hover:scale-[1.02]"
                   >
-                    <div className="p-2 bg-primary/10 rounded-lg text-primary">
-                      {getFileIcon(file.type)}
-                    </div>
+                    {item.preview ? (
+                      <div className="relative w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 border-2 border-primary/20">
+                        <img 
+                          src={item.preview} 
+                          alt={item.file.name}
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                      </div>
+                    ) : (
+                      <div className="p-2 bg-primary/10 rounded-lg text-primary flex-shrink-0">
+                        {getFileIcon(item.file.type)}
+                      </div>
+                    )}
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-foreground truncate">
-                        {file.name}
+                        {item.file.name}
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        {(file.size / 1024 / 1024).toFixed(2)} MB
+                        {(item.file.size / 1024 / 1024).toFixed(2)} MB
                       </p>
                     </div>
                     <button
