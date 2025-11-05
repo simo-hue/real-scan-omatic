@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { FileUpload } from '@/components/FileUpload';
 import { AnalysisResult } from '@/components/AnalysisResult';
 import { GridBackground } from '@/components/GridBackground';
+import { DeepfakeEducation } from '@/components/DeepfakeEducation';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
 import { Sparkles, ArrowRight, Zap } from 'lucide-react';
@@ -228,7 +229,7 @@ const Index = () => {
           {[
             { 
               title: 'Streaming Real-time', 
-              desc: 'Vedi i risultati apparire mentre l\'AI elabora',
+              desc: "Vedi i risultati apparire mentre l'AI elabora",
               gradient: 'from-primary to-accent-cyan'
             },
             { 
@@ -248,6 +249,11 @@ const Index = () => {
               <p className="text-sm text-muted-foreground">{feature.desc}</p>
             </div>
           ))}
+        </div>
+
+        {/* Educational Section */}
+        <div className="mt-32">
+          <DeepfakeEducation />
         </div>
       </div>
     </div>
