@@ -30,14 +30,14 @@ const questionBank: QuizQuestion[] = [
   // Easy questions
   {
     id: 1,
-    scenario: "Video di un politico che fa una dichiarazione controversa",
-    detailedDescription: "In questo video, vediamo un politico di alto profilo durante quella che sembra essere una conferenza stampa ufficiale. Il politico sta facendo dichiarazioni su una questione controversa di politica nazionale. La qualità del video è buona e il setting sembra professionale con microfoni e sfondo istituzionale.",
+    scenario: "Immagine di un politico che fa una dichiarazione controversa",
+    detailedDescription: "In questa immagine, vediamo un politico di alto profilo durante quella che sembra essere una conferenza stampa ufficiale. Il politico è ritratto mentre fa dichiarazioni su una questione controversa di politica nazionale. La qualità dell'immagine è buona e il setting sembra professionale con microfoni e sfondo istituzionale.",
     imageUrl: deepfakePolitician,
     isDeepfake: true,
     difficulty: "easy",
     hints: [
-      "Osserva la mano alzata - il movimento sembra naturale o leggermente rigido?",
-      "Guarda la bocca mentre parla - le labbra si muovono in modo completamente sincronizzato?",
+      "Osserva la mano alzata - il gesto sembra naturale o leggermente rigido?",
+      "Guarda i dettagli del viso - la texture della pelle sembra naturale?",
       "Nota lo sfondo blu sfocato - i bordi del viso rimangono nitidi o c'è sfocatura innaturale?"
     ],
     explanation: "Questo è un deepfake generato da AI. Sebbene la qualità generale sia alta, ci sono segnali rivelatori: il gesto della mano alzata appare leggermente innaturale e rigido. I bordi del viso, specialmente vicino ai capelli contro lo sfondo blu, mostrano una leggera inconsistenza. La texture della pelle appare troppo uniforme senza le naturali imperfezioni. Questo tipo di immagini AI-generated manca delle sottili imperfezioni e variazioni che caratterizzano le foto autentiche."
@@ -58,8 +58,8 @@ const questionBank: QuizQuestion[] = [
   },
   {
     id: 3,
-    scenario: "Intervista video registrata in studio professionale",
-    detailedDescription: "Questo è un segmento di un'intervista televisiva registrata in uno studio broadcasting professionale. Due persone sono sedute in un ambiente ben illuminato, con telecamere professionali visibili. La conversazione sembra fluire naturalmente con gesti e espressioni appropriate al contesto della discussione.",
+    scenario: "Immagine di intervista registrata in studio professionale",
+    detailedDescription: "Questa è un'immagine di un'intervista televisiva registrata in uno studio broadcasting professionale. Due persone sono sedute in un ambiente ben illuminato, con telecamere professionali visibili. La scena mostra un momento dell'intervista con gesti ed espressioni appropriate al contesto della discussione.",
     imageUrl: realInterview,
     isDeepfake: false,
     difficulty: "easy",
@@ -88,8 +88,8 @@ const questionBank: QuizQuestion[] = [
   // Medium questions
   {
     id: 5,
-    scenario: "Video di una celebrità che promuove un prodotto finanziario sui social",
-    detailedDescription: "Questo video mostra una celebrità nota in un ambiente casual che sembra essere un caffè o un ristorante. La celebrità sta parlando con entusiasmo di un'opportunità di investimento, sostenendo di aver guadagnato molto denaro. Il video è stato condiviso sui social media con migliaia di visualizzazioni e sembra provenire dall'account verificato della celebrità.",
+    scenario: "Immagine di una celebrità che promuove un prodotto finanziario sui social",
+    detailedDescription: "Questa immagine mostra una celebrità nota in un ambiente casual che sembra essere un caffè o un ristorante. La celebrità appare mentre tiene un prodotto e sorride, come se stesse parlando di un'opportunità di investimento. L'immagine è stata condivisa sui social media con migliaia di visualizzazioni e sembra provenire dall'account verificato della celebrità.",
     imageUrl: deepfakeCelebrity,
     isDeepfake: true,
     difficulty: "medium",
@@ -130,24 +130,24 @@ const questionBank: QuizQuestion[] = [
   },
   {
     id: 8,
-    scenario: "Streaming live di un evento sportivo su piattaforma ufficiale",
-    detailedDescription: "Stai guardando uno streaming di una partita di calcio importante sulla piattaforma ufficiale della lega sportiva. Il video mostra giocatori in azione con movimenti fluidi, reazioni naturali agli eventi del gioco, e commento live dei telecronisti. La qualità è quella standard dei broadcast sportivi professionali con replay istantanei e grafiche overlay.",
+    scenario: "Immagine da streaming di un evento sportivo",
+    detailedDescription: "Questa immagine cattura un momento di una partita di calcio importante. Il video mostra giocatori in azione con posture atletiche naturali. La qualità è quella standard dei broadcast sportivi professionali con nitidezza e inquadratura professionale.",
     imageUrl: realSports,
     isDeepfake: false,
     difficulty: "medium",
     hints: [
-      "I movimenti atletici complessi (corsa, salti, cambi di direzione) sono fisicamente plausibili?",
-      "Le divise dei giocatori mostrano pieghe naturali e movimento del tessuto durante l'azione?",
-      "Il pubblico sullo sfondo mostra reazioni variegate e naturali?"
+      "I giocatori mostrano posture atletiche fisicamente plausibili?",
+      "Le divise dei giocatori mostrano pieghe naturali e dettagli realistici?",
+      "Il pubblico sullo sfondo mostra varietà naturali nelle posizioni e reazioni?"
     ],
-    explanation: "Questo è contenuto completamente autentico da un evento sportivo reale. Gli streaming live ufficiali hanno molteplici indicatori di autenticità: i movimenti atletici complessi sono perfettamente coordinati e fisicamente plausibili (estremamente difficili da falsificare in tempo reale). Le divise mostrano movimento naturale del tessuto con pieghe che cambiano realisticamente. Il pubblico sullo sfondo mostra una varietà naturale di reazioni e comportamenti. La complessità e l'imprevedibilità di un evento sportivo live rendono praticamente impossibile creare un deepfake convincente in tempo reale."
+    explanation: "Questo è contenuto completamente autentico da un evento sportivo reale. Le immagini ufficiali hanno molteplici indicatori di autenticità: le posture atletiche complesse sono perfettamente coordinate e fisicamente plausibili. Le divise mostrano dettagli naturali del tessuto con pieghe realistiche. Il pubblico sullo sfondo mostra una varietà naturale di posizioni e comportamenti. La complessità e l'autenticità di un evento sportivo professionale rendono estremamente difficile creare un deepfake convincente."
   },
   
   // Hard questions
   {
     id: 9,
-    scenario: "Video messaggio personale da un familiare che chiede aiuto finanziario",
-    detailedDescription: "Hai ricevuto un video messaggio che sembra essere da un membro della tua famiglia. La persona appare visibilmente angosciata e spiega di essere in una situazione di emergenza finanziaria mentre è all'estero. La qualità del video è leggermente inferiore, come ci si aspetterebbe da una connessione internet in roaming. Il volto e la voce sembrano corrispondere perfettamente al tuo familiare, incluse maniere e modo di parlare.",
+    scenario: "Immagine da video messaggio personale di un familiare che chiede aiuto",
+    detailedDescription: "Questa è un'immagine estratta da quello che sembra essere un video messaggio da un membro della tua famiglia. La persona appare visibilmente angosciata in quella che sembra una situazione di emergenza finanziaria. La qualità dell'immagine è leggermente inferiore, come ci si aspetterebbe da una connessione internet in roaming. Il volto sembra corrispondere perfettamente al tuo familiare.",
     imageUrl: deepfakeFamilyMessage,
     isDeepfake: true,
     difficulty: "hard",
@@ -174,8 +174,8 @@ const questionBank: QuizQuestion[] = [
   },
   {
     id: 11,
-    scenario: "Conferenza stampa ufficiale registrata da più angolazioni simultaneamente",
-    detailedDescription: "Una conferenza stampa importante trasmessa in diretta da multiple emittenti televisive, ciascuna con le proprie telecamere posizionate in punti diversi della sala. Il confronto tra i diversi feed video mostra la stessa persona da angolazioni diverse: frontale, laterale, e dall'alto. Tutti i movimenti, gesti e timing sono perfettamente coerenti tra tutte le prospettive. Il contenuto include anche domande spontanee da giornalisti e risposte immediate.",
+    scenario: "Immagine da conferenza stampa ufficiale con multiple angolazioni",
+    detailedDescription: "Un'immagine composita da una conferenza stampa importante trasmessa da multiple emittenti televisive, ciascuna con le proprie telecamere. L'immagine mostra la stessa persona da quattro angolazioni diverse: frontale, laterale e dall'alto. Tutti i dettagli visivi sono perfettamente coerenti tra tutte le prospettive.",
     imageUrl: realPressConference,
     isDeepfake: false,
     difficulty: "hard",
