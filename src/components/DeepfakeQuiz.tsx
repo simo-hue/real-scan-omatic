@@ -216,11 +216,11 @@ export const DeepfakeQuiz = () => {
   }, []);
 
   const startNewQuiz = () => {
-    // Randomize and select 10 questions with progressive difficulty
+    // Randomize and select 5 questions with progressive difficulty
     const shuffled = [...questionBank].sort(() => Math.random() - 0.5);
-    const easyQuestions = shuffled.filter(q => q.difficulty === "easy").slice(0, 3);
-    const mediumQuestions = shuffled.filter(q => q.difficulty === "medium").slice(0, 4);
-    const hardQuestions = shuffled.filter(q => q.difficulty === "hard").slice(0, 3);
+    const easyQuestions = shuffled.filter(q => q.difficulty === "easy").slice(0, 2);
+    const mediumQuestions = shuffled.filter(q => q.difficulty === "medium").slice(0, 2);
+    const hardQuestions = shuffled.filter(q => q.difficulty === "hard").slice(0, 1);
     
     const selectedQuestions = [...easyQuestions, ...mediumQuestions, ...hardQuestions];
     setQuizQuestions(selectedQuestions);
@@ -265,24 +265,60 @@ export const DeepfakeQuiz = () => {
 
   if (quizCompleted) {
     const percentage = (score / quizQuestions.length) * 100;
+    
+    // Determina voto e valutazione
+    let voto = "";
+    let valutazione = "";
+    let coloreVoto = "";
+    
+    if (score === 5) {
+      voto = "10/10";
+      valutazione = "Eccellente! Hai riconosciuto tutti i deepfake correttamente. Sei un esperto!";
+      coloreVoto = "text-green-500";
+    } else if (score === 4) {
+      voto = "8/10";
+      valutazione = "Molto bene! Hai una buona comprensione dei deepfake.";
+      coloreVoto = "text-green-400";
+    } else if (score === 3) {
+      voto = "6/10";
+      valutazione = "Discreto! Hai delle basi ma puoi migliorare.";
+      coloreVoto = "text-yellow-500";
+    } else if (score === 2) {
+      voto = "4/10";
+      valutazione = "Sufficiente, ma c'è molto spazio per migliorare.";
+      coloreVoto = "text-orange-500";
+    } else {
+      voto = score === 1 ? "2/10" : "0/10";
+      valutazione = "Continua a esercitarti per riconoscere meglio i deepfake!";
+      coloreVoto = "text-red-500";
+    }
+    
     return (
       <Card className="glass-effect border-accent/30 p-8 text-center space-y-6">
         <div className="flex justify-center">
           <Award className="w-24 h-24 text-accent animate-pulse-glow" />
         </div>
+        
         <h3 className="text-3xl font-bold glow-text-blue">Quiz Completato!</h3>
+        
         <div className="space-y-4">
-          <p className="text-xl">
-            Punteggio: <span className="text-accent font-bold">{score}</span> / {quizQuestions.length}
-          </p>
-          <Progress value={percentage} className="h-3" />
-          <p className="text-muted-foreground">
-            {percentage >= 80 && "Eccellente! Sei un esperto nel riconoscere i deepfake!"}
-            {percentage >= 60 && percentage < 80 && "Buon lavoro! Con più pratica diventerai un esperto."}
-            {percentage >= 40 && percentage < 60 && "Non male! Continua a esercitarti per migliorare."}
-            {percentage < 40 && "Hai bisogno di più pratica. Rivedi i segnali da cercare!"}
+          <div className="space-y-2">
+            <p className="text-sm text-muted-foreground">Risposte corrette:</p>
+            <p className="text-2xl font-bold text-accent">{score}/5</p>
+          </div>
+          
+          <div className="space-y-2">
+            <p className="text-sm text-muted-foreground">Il tuo voto:</p>
+            <p className={`text-4xl font-bold ${coloreVoto}`}>{voto}</p>
+          </div>
+          
+          <Progress value={percentage} className="h-3 mt-4" />
+          
+          <p className="text-base text-muted-foreground mt-4 px-4">
+            {valutazione}
           </p>
         </div>
+
         <Button 
           onClick={startNewQuiz}
           className="bg-gradient-to-r from-accent via-accent-purple to-accent-cyan hover:opacity-90 transition-all"
