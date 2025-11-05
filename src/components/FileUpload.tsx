@@ -1,11 +1,13 @@
 import { useCallback, useState, useEffect } from 'react';
-import { Upload, X, FileText, Image as ImageIcon, Video, Link as LinkIcon, CheckCircle2 } from 'lucide-react';
+import { Upload, X, FileText, Image as ImageIcon, Video, Link as LinkIcon, CheckCircle2, Loader2 } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { z } from 'zod';
+// @ts-ignore - heic2any doesn't have types
+import heic2any from 'heic2any';
 
 const urlSchema = z.string().url({ message: "URL non valido" }).max(2048, { message: "URL troppo lungo" });
 
@@ -25,6 +27,7 @@ export const FileUpload = ({ onFilesSelected, onUrlSubmit }: FileUploadProps) =>
   const [urlInput, setUrlInput] = useState('');
   const [acceptedUrl, setAcceptedUrl] = useState<string>('');
   const [isValidatingUrl, setIsValidatingUrl] = useState(false);
+  const [isConverting, setIsConverting] = useState(false);
   const { toast } = useToast();
 
   // Cleanup preview URLs when component unmounts or files change
@@ -57,52 +60,105 @@ export const FileUpload = ({ onFilesSelected, onUrlSubmit }: FileUploadProps) =>
     handleFiles(files);
   }, []);
 
-  const handleFiles = (files: File[]) => {
-    const validFiles = files.filter(file => {
-      // Block HEIC/HEIF formats - not supported by AI
-      if (file.type === 'image/heic' || file.type === 'image/heif' || 
-          file.name.match(/\.(heic|heif)$/i)) {
-        toast({
-          title: "Formato HEIC non supportato",
-          description: "Converti l'immagine in JPG o PNG. Su iPhone: Impostazioni > Fotocamera > Formati > Più compatibile",
-          variant: "destructive",
-          duration: 8000,
-        });
-        return false;
-      }
-
-      // Support standard image formats
-      const isImage = file.type.startsWith('image/') && 
-                     !file.type.includes('heic') && 
-                     !file.type.includes('heif');
+  const convertHeicToJpg = async (file: File): Promise<File> => {
+    try {
+      console.log('Converting HEIC file:', file.name);
       
-      const isValid = isImage || 
-                     file.type.startsWith('video/') || 
-                     file.type.startsWith('text/') ||
-                     file.type === 'application/pdf';
-      
-      if (!isValid) {
-        toast({
-          title: "Tipo di file non supportato",
-          description: `${file.name} non è supportato. Usa JPG, PNG, WEBP, video, testo o PDF`,
-          variant: "destructive",
-        });
-      }
-      return isValid;
-    });
-
-    if (validFiles.length > 0) {
-      const filesWithPreview = validFiles.map(file => {
-        const isImage = file.type.startsWith('image/');
-        
-        return {
-          file,
-          preview: isImage ? URL.createObjectURL(file) : undefined
-        };
+      // Convert HEIC to JPEG blob
+      const convertedBlob = await heic2any({
+        blob: file,
+        toType: 'image/jpeg',
+        quality: 0.9
       });
       
-      setSelectedFiles(prev => [...prev, ...filesWithPreview]);
-      onFilesSelected(validFiles);
+      // Handle array of blobs (heic2any can return array)
+      const blob = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob;
+      
+      // Create new File from blob with .jpg extension
+      const newFileName = file.name.replace(/\.(heic|heif)$/i, '.jpg');
+      const convertedFile = new File([blob], newFileName, {
+        type: 'image/jpeg',
+        lastModified: Date.now()
+      });
+      
+      console.log('HEIC conversion successful:', newFileName);
+      return convertedFile;
+    } catch (error) {
+      console.error('HEIC conversion error:', error);
+      throw new Error('Impossibile convertire il file HEIC');
+    }
+  };
+
+  const handleFiles = async (files: File[]) => {
+    setIsConverting(true);
+    
+    try {
+      const processedFiles: File[] = [];
+      
+      for (const file of files) {
+        // Check if file is HEIC/HEIF and convert it
+        const isHeic = file.type === 'image/heic' || 
+                      file.type === 'image/heif' || 
+                      file.name.match(/\.(heic|heif)$/i);
+        
+        if (isHeic) {
+          toast({
+            title: "Conversione in corso...",
+            description: `Conversione di ${file.name} in JPG`,
+          });
+          
+          try {
+            const convertedFile = await convertHeicToJpg(file);
+            processedFiles.push(convertedFile);
+            
+            toast({
+              title: "Conversione completata",
+              description: `${file.name} convertito in JPG`,
+            });
+          } catch (conversionError) {
+            toast({
+              title: "Errore conversione",
+              description: `Impossibile convertire ${file.name}. Usa JPG o PNG`,
+              variant: "destructive",
+            });
+            continue;
+          }
+        } else {
+          // Validate non-HEIC files
+          const isImage = file.type.startsWith('image/');
+          const isValid = isImage || 
+                         file.type.startsWith('video/') || 
+                         file.type.startsWith('text/') ||
+                         file.type === 'application/pdf';
+          
+          if (!isValid) {
+            toast({
+              title: "Tipo di file non supportato",
+              description: `${file.name} non è supportato`,
+              variant: "destructive",
+            });
+            continue;
+          }
+          
+          processedFiles.push(file);
+        }
+      }
+
+      if (processedFiles.length > 0) {
+        const filesWithPreview = processedFiles.map(file => {
+          const isImage = file.type.startsWith('image/');
+          
+          return {
+            file,
+            preview: isImage ? URL.createObjectURL(file) : undefined
+          };
+        });
+        
+        setSelectedFiles(prev => [...prev, ...filesWithPreview]);
+        onFilesSelected(processedFiles);
+      }
+    } finally {
+      setIsConverting(false);
     }
   };
 
@@ -206,29 +262,34 @@ export const FileUpload = ({ onFilesSelected, onUrlSubmit }: FileUploadProps) =>
               type="file"
               multiple
               onChange={handleChange}
-              accept="image/jpeg,image/jpg,image/png,image/webp,image/gif,image/bmp,video/*,text/*,.pdf"
+              accept="image/jpeg,image/jpg,image/png,image/webp,image/gif,image/bmp,image/heic,image/heif,.heic,.heif,video/*,text/*,.pdf"
               className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+              disabled={isConverting}
             />
             
             <div className="p-12 text-center space-y-4">
               <div className="flex justify-center">
                 <div className="p-6 bg-gradient-to-br from-primary/20 to-accent-purple/20 rounded-2xl backdrop-blur-sm border border-primary/20 animate-pulse-glow">
-                  <Upload className="h-12 w-12 text-primary" />
+                  {isConverting ? (
+                    <Loader2 className="h-12 w-12 text-primary animate-spin" />
+                  ) : (
+                    <Upload className="h-12 w-12 text-primary" />
+                  )}
                 </div>
               </div>
               
               <div className="space-y-2">
                 <div className="text-xl font-semibold text-foreground">
-                  Trascina i file qui
+                  {isConverting ? 'Conversione in corso...' : 'Trascina i file qui'}
                 </div>
                 <div className="text-sm text-muted-foreground">
-                  oppure clicca per selezionare
+                  {isConverting ? 'Attendi il completamento' : 'oppure clicca per selezionare'}
                 </div>
               </div>
               
               <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
                 <div className="h-px w-8 bg-gradient-to-r from-transparent to-primary/50" />
-                <span>JPG • PNG • WEBP • Video • Testo • PDF</span>
+                <span>JPG • PNG • WEBP • HEIC • Video • PDF</span>
                 <div className="h-px w-8 bg-gradient-to-l from-transparent to-primary/50" />
               </div>
             </div>
