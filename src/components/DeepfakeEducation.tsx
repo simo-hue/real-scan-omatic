@@ -1,6 +1,8 @@
 import { Shield, Eye, AlertTriangle, CheckCircle2, Brain, Scan } from 'lucide-react';
 import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { useState } from 'react';
+import { DeepfakeQuiz } from './DeepfakeQuiz';
 
 const warningSignsImages = [
   {
@@ -77,8 +79,24 @@ export const DeepfakeEducation = () => {
         
         <p className="text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
           Impara a identificare contenuti manipolati e generati dall'AI.
-          La consapevolezza è la tua migliore difesa nell'era digitale.
+          Metti alla prova le tue capacità con il nostro quiz interattivo.
         </p>
+      </div>
+
+      {/* Interactive Quiz Section */}
+      <div className="space-y-6">
+        <div className="text-center space-y-2">
+          <Badge variant="outline" className="border-accent/50 text-accent mb-4 text-sm px-4 py-2">
+            🎯 Quiz Interattivo
+          </Badge>
+          <h3 className="text-3xl font-bold glow-text-purple">
+            Metti alla Prova le Tue Capacità
+          </h3>
+          <p className="text-muted-foreground max-w-2xl mx-auto">
+            Ogni tentativo presenta domande diverse con difficoltà progressiva. Riesci a distinguere i deepfake dai contenuti autentici?
+          </p>
+        </div>
+        <DeepfakeQuiz />
       </div>
 
       {/* Warning Signs - Images */}
