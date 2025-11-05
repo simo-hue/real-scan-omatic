@@ -3,7 +3,7 @@ import { Button } from "./ui/button";
 import { Card } from "./ui/card";
 import { Progress } from "./ui/progress";
 import { Badge } from "./ui/badge";
-import { CheckCircle2, XCircle, RotateCcw, Award } from "lucide-react";
+import { CheckCircle2, XCircle, RotateCcw, Award, ExternalLink } from "lucide-react";
 
 // Import images
 import fakeCeoDeepfake from "@/assets/quiz/fake-ceo-deepfake.jpg";
@@ -24,6 +24,7 @@ interface QuizQuestion {
   difficulty: "easy" | "medium" | "hard";
   hints: string[];
   explanation: string;
+  unsplashUrl?: string;
 }
 
 const questionBank: QuizQuestion[] = [
@@ -54,7 +55,8 @@ const questionBank: QuizQuestion[] = [
       "L'illuminazione crea ombre coerenti sul viso e sugli oggetti?",
       "I microfoni e lo sfondo mostrano dettagli realistici?"
     ],
-    explanation: "Questa è un'immagine reale. Indicatori chiave: texture naturale della pelle con rughe visibili, illuminazione professionale che crea ombre coerenti, dettagli realistici dei microfoni e delle bandiere, e proporzioni naturali del corpo e del viso."
+    explanation: "Questa è un'immagine reale. Indicatori chiave: texture naturale della pelle con rughe visibili, illuminazione professionale che crea ombre coerenti, dettagli realistici dei microfoni e delle bandiere, e proporzioni naturali del corpo e del viso.",
+    unsplashUrl: "https://unsplash.com/photos/waist-up-portrait-of-smiling-female-official-giving-interview-to-journalist-and-speaking-to-microphones-against-red-curtain-flcI6I40zz8"
   },
   {
     id: 3,
@@ -68,7 +70,8 @@ const questionBank: QuizQuestion[] = [
       "Le attrezzature visibili (telecamere, luci) sono reali e coerenti?",
       "I movimenti e le posture sembrano naturali?"
     ],
-    explanation: "Questo contenuto è autentico. L'illuminazione professionale dello studio è perfettamente coerente, le attrezzature visibili nello sfondo mostrano dettagli realistici, e le posture delle persone mostrano naturale asimmetria e spontaneità."
+    explanation: "Questo contenuto è autentico. L'illuminazione professionale dello studio è perfettamente coerente, le attrezzature visibili nello sfondo mostrano dettagli realistici, e le posture delle persone mostrano naturale asimmetria e spontaneità.",
+    unsplashUrl: "https://unsplash.com/photos/three-men-sitting-while-using-laptops-and-watching-man-beside-whiteboard-5fNmWej4tAA"
   },
   {
     id: 4,
@@ -82,7 +85,8 @@ const questionBank: QuizQuestion[] = [
       "Lo sfondo sfocato del parco mostra naturale profondità di campo?",
       "Le espressioni mostrano variazioni naturali tra le persone?"
     ],
-    explanation: "Questa è una fotografia genuina. L'illuminazione naturale crea ombre coerenti, lo sfondo mostra naturale profondità di campo, le texture della pelle sono naturali, e ogni persona ha espressioni uniche e autentiche."
+    explanation: "Questa è una fotografia genuina. L'illuminazione naturale crea ombre coerenti, lo sfondo mostra naturale profondità di campo, le texture della pelle sono naturali, e ogni persona ha espressioni uniche e autentiche.",
+    unsplashUrl: "https://unsplash.com/photos/woman-carrying-baby-while-walking-dc6zCwlvL5s"
   },
   
   // Medium questions
@@ -140,7 +144,8 @@ const questionBank: QuizQuestion[] = [
       "Le divise dei giocatori mostrano pieghe naturali e dettagli realistici?",
       "Il pubblico sullo sfondo mostra varietà naturali nelle posizioni e reazioni?"
     ],
-    explanation: "Questo è contenuto completamente autentico da un evento sportivo reale. Le immagini ufficiali hanno molteplici indicatori di autenticità: le posture atletiche complesse sono perfettamente coordinate e fisicamente plausibili. Le divise mostrano dettagli naturali del tessuto con pieghe realistiche. Il pubblico sullo sfondo mostra una varietà naturale di posizioni e comportamenti. La complessità e l'autenticità di un evento sportivo professionale rendono estremamente difficile creare un deepfake convincente."
+    explanation: "Questo è contenuto completamente autentico da un evento sportivo reale. Le immagini ufficiali hanno molteplici indicatori di autenticità: le posture atletiche complesse sono perfettamente coordinate e fisicamente plausibili. Le divise mostrano dettagli naturali del tessuto con pieghe realistiche. Il pubblico sullo sfondo mostra una varietà naturale di posizioni e comportamenti. La complessità e l'autenticità di un evento sportivo professionale rendono estremamente difficile creare un deepfake convincente.",
+    unsplashUrl: "https://unsplash.com/photos/people-playing-soccer-on-soccer-field-during-daytime-afW1hht0NSs"
   },
   
   // Hard questions
@@ -184,7 +189,8 @@ const questionBank: QuizQuestion[] = [
       "Gli sfondi e le persone visibili in ciascuna angolazione sono coerenti tra loro?",
       "I dettagli come la cravatta rossa e le posizioni delle mani corrispondono in tutte le inquadrature?"
     ],
-    explanation: "Questo è contenuto completamente autentico da un evento ufficiale reale. La presenza di quattro angolazioni simultanee da fonti indipendenti rende estremamente difficile creare un deepfake convincente. Gli indicatori chiave includono: perfetta coerenza di movimenti, gesti e timing tra tutte e quattro le prospettive. I dettagli come la cravatta rossa, la posizione delle mani, e le espressioni facciali sono identici in tutte le inquadrature. Le persone sullo sfondo e gli elementi della sala sono visibili in modo coerente da diverse angolazioni. La complessità di falsificare simultaneamente multiple prospettive dello stesso evento mantenendo coerenza perfetta è tecnicamente proibitiva anche per i deepfake più avanzati."
+    explanation: "Questo è contenuto completamente autentico da un evento ufficiale reale. La presenza di quattro angolazioni simultanee da fonti indipendenti rende estremamente difficile creare un deepfake convincente. Gli indicatori chiave includono: perfetta coerenza di movimenti, gesti e timing tra tutte e quattro le prospettive. I dettagli come la cravatta rossa, la posizione delle mani, e le espressioni facciali sono identici in tutte le inquadrature. Le persone sullo sfondo e gli elementi della sala sono visibili in modo coerente da diverse angolazioni. La complessità di falsificare simultaneamente multiple prospettive dello stesso evento mantenendo coerenza perfetta è tecnicamente proibitiva anche per i deepfake più avanzati.",
+    unsplashUrl: "https://unsplash.com/photos/men-sitting-in-front-of-their-laptop-computer-Oalh2MojUuk"
   },
   {
     id: 12,
@@ -443,6 +449,17 @@ export const DeepfakeQuiz = () => {
                     </p>
                   ))}
                 </div>
+                {currentQuestion.unsplashUrl && (
+                  <a
+                    href={currentQuestion.unsplashUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 text-sm text-accent hover:text-accent-cyan transition-colors"
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                    Visualizza immagine originale su Unsplash
+                  </a>
+                )}
               </div>
             </div>
           )}
