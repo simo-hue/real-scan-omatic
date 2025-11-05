@@ -79,8 +79,8 @@ export const AnalysisResult = ({ result, isLoading }: AnalysisResultProps) => {
             Risultato analisi
           </p>
           <div className="prose prose-sm max-w-none">
-            <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">
-              {result.analysis}
+            <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap min-h-[100px]">
+              {result.analysis || 'Analisi in corso...'}
             </p>
           </div>
         </div>

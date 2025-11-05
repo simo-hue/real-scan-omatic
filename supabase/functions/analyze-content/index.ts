@@ -26,14 +26,14 @@ serve(async (req) => {
       messages = [
         {
           role: 'system',
-          content: 'Sei un esperto analista di immagini. Fornisci un\'analisi dettagliata dell\'immagine in italiano, descrivendo oggetti, scene, colori, composizione e qualsiasi elemento rilevante.',
+          content: 'Sei un esperto analista di immagini. Fornisci un\'analisi dettagliata e strutturata dell\'immagine in italiano, descrivendo: 1) Soggetti e oggetti principali 2) Composizione e layout 3) Colori e illuminazione 4) Stile e tecnica 5) Emozioni e atmosfera trasmesse. Usa paragrafi chiari e separati.',
         },
         {
           role: 'user',
           content: [
             {
               type: 'text',
-              text: 'Analizza questa immagine in dettaglio.',
+              text: 'Analizza questa immagine in modo dettagliato e strutturato.',
             },
             {
               type: 'image_url',
@@ -48,22 +48,22 @@ serve(async (req) => {
       messages = [
         {
           role: 'system',
-          content: 'Sei un esperto analista di testo. Fornisci un\'analisi dettagliata del contenuto in italiano, identificando temi principali, tono, stile e informazioni chiave.',
+          content: 'Sei un esperto analista di testo. Fornisci un\'analisi dettagliata e strutturata del contenuto in italiano, includendo: 1) Tema e argomento principale 2) Tono e stile di scrittura 3) Punti chiave e messaggi principali 4) Struttura e organizzazione 5) Pubblico target e scopo. Usa paragrafi chiari e separati.',
         },
         {
           role: 'user',
-          content: `Analizza questo testo in dettaglio:\n\n${content}`,
+          content: `Analizza questo testo in modo dettagliato e strutturato:\n\n${content.substring(0, 4000)}`,
         },
       ];
     } else if (fileType.startsWith('video/')) {
       messages = [
         {
           role: 'system',
-          content: 'Sei un esperto analista video. Fornisci suggerimenti su cosa analizzare in un video in italiano.',
+          content: 'Sei un esperto analista video. Fornisci suggerimenti dettagliati su cosa analizzare in un video in italiano.',
         },
         {
           role: 'user',
-          content: `Fornisci un'analisi generale per un file video chiamato: ${fileName}`,
+          content: `Fornisci un'analisi dettagliata e consigli per un file video chiamato: ${fileName}`,
         },
       ];
     }
@@ -77,6 +77,7 @@ serve(async (req) => {
       body: JSON.stringify({
         model: 'google/gemini-2.5-flash',
         messages: messages,
+        stream: true,
       }),
     });
 
@@ -86,15 +87,17 @@ serve(async (req) => {
       throw new Error(`AI API error: ${response.status}`);
     }
 
-    const data = await response.json();
-    console.log('AI response received');
+    console.log('Streaming AI response...');
 
-    const analysis = data.choices[0].message.content;
-
-    return new Response(
-      JSON.stringify({ analysis }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    // Return the streaming response directly to the client
+    return new Response(response.body, {
+      headers: {
+        ...corsHeaders,
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+      },
+    });
   } catch (error) {
     console.error('Error in analyze-content function:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';

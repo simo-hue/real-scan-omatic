@@ -45,22 +45,71 @@ const Index = () => {
         content = 'PDF file uploaded for analysis';
       }
 
-      const { data, error } = await supabase.functions.invoke('analyze-content', {
-        body: { 
-          fileName: file.name,
-          fileType: file.type,
-          content: content,
-        },
-      });
+      // Stream the response
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/analyze-content`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          },
+          body: JSON.stringify({
+            fileName: file.name,
+            fileType: file.type,
+            content: content,
+          }),
+        }
+      );
 
-      if (error) throw error;
+      if (!response.ok || !response.body) {
+        throw new Error('Failed to start analysis stream');
+      }
 
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let accumulatedText = '';
+
+      // Initialize result with empty analysis
       setResult({
         fileName: file.name,
         fileType: file.type,
-        analysis: data.analysis,
+        analysis: '',
         timestamp: new Date(),
       });
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value, { stream: true });
+        const lines = chunk.split('\n');
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const data = line.slice(6);
+            if (data === '[DONE]') continue;
+
+            try {
+              const parsed = JSON.parse(data);
+              const content = parsed.choices?.[0]?.delta?.content;
+              
+              if (content) {
+                accumulatedText += content;
+                // Update result in real-time
+                setResult({
+                  fileName: file.name,
+                  fileType: file.type,
+                  analysis: accumulatedText,
+                  timestamp: new Date(),
+                });
+              }
+            } catch (e) {
+              // Ignore JSON parse errors for incomplete chunks
+            }
+          }
+        }
+      }
 
       toast({
         title: "Analisi completata",
