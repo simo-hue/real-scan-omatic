@@ -19,6 +19,12 @@ interface FileUploadProps {
 interface FileWithPreview {
   file: File;
   preview?: string;
+  metadata?: {
+    width?: number;
+    height?: number;
+    duration?: number;
+    pageCount?: number;
+  };
 }
 
 export const FileUpload = ({ onFilesSelected, onUrlSubmit }: FileUploadProps) => {
@@ -59,6 +65,55 @@ export const FileUpload = ({ onFilesSelected, onUrlSubmit }: FileUploadProps) =>
     const files = Array.from(e.dataTransfer.files);
     handleFiles(files);
   }, []);
+
+  const extractImageMetadata = (file: File): Promise<{ width: number; height: number }> => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      const url = URL.createObjectURL(file);
+      
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+        resolve({
+          width: img.naturalWidth,
+          height: img.naturalHeight
+        });
+      };
+      
+      img.onerror = () => {
+        URL.revokeObjectURL(url);
+        reject(new Error('Failed to load image'));
+      };
+      
+      img.src = url;
+    });
+  };
+
+  const extractVideoMetadata = (file: File): Promise<{ duration: number }> => {
+    return new Promise((resolve, reject) => {
+      const video = document.createElement('video');
+      const url = URL.createObjectURL(file);
+      
+      video.onloadedmetadata = () => {
+        URL.revokeObjectURL(url);
+        resolve({
+          duration: video.duration
+        });
+      };
+      
+      video.onerror = () => {
+        URL.revokeObjectURL(url);
+        reject(new Error('Failed to load video'));
+      };
+      
+      video.src = url;
+    });
+  };
+
+  const extractPdfMetadata = async (file: File): Promise<{ pageCount: number }> => {
+    // PDF page count extraction would require pdf.js library
+    // For now, return a placeholder
+    return { pageCount: 0 };
+  };
 
   const convertHeicToJpg = async (file: File): Promise<File> => {
     try {
@@ -145,14 +200,37 @@ export const FileUpload = ({ onFilesSelected, onUrlSubmit }: FileUploadProps) =>
       }
 
       if (processedFiles.length > 0) {
-        const filesWithPreview = processedFiles.map(file => {
+        const filesWithPreview: FileWithPreview[] = [];
+        
+        for (const file of processedFiles) {
           const isImage = file.type.startsWith('image/');
+          const isVideo = file.type.startsWith('video/');
+          const isPdf = file.type === 'application/pdf';
           
-          return {
+          const fileWithPreview: FileWithPreview = {
             file,
-            preview: isImage ? URL.createObjectURL(file) : undefined
+            preview: isImage ? URL.createObjectURL(file) : undefined,
+            metadata: {}
           };
-        });
+          
+          // Extract metadata based on file type
+          try {
+            if (isImage) {
+              const imgMetadata = await extractImageMetadata(file);
+              fileWithPreview.metadata = imgMetadata;
+            } else if (isVideo) {
+              const videoMetadata = await extractVideoMetadata(file);
+              fileWithPreview.metadata = videoMetadata;
+            } else if (isPdf) {
+              const pdfMetadata = await extractPdfMetadata(file);
+              fileWithPreview.metadata = pdfMetadata;
+            }
+          } catch (error) {
+            console.error('Failed to extract metadata:', error);
+          }
+          
+          filesWithPreview.push(fileWithPreview);
+        }
         
         setSelectedFiles(prev => [...prev, ...filesWithPreview]);
         onFilesSelected(processedFiles);
@@ -325,9 +403,27 @@ export const FileUpload = ({ onFilesSelected, onUrlSubmit }: FileUploadProps) =>
                       <p className="text-sm font-medium text-foreground truncate">
                         {item.file.name}
                       </p>
-                      <p className="text-xs text-muted-foreground">
-                        {(item.file.size / 1024 / 1024).toFixed(2)} MB
-                      </p>
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <span>{(item.file.size / 1024 / 1024).toFixed(2)} MB</span>
+                        {item.metadata?.width && item.metadata?.height && (
+                          <>
+                            <span>•</span>
+                            <span>{item.metadata.width} × {item.metadata.height}px</span>
+                          </>
+                        )}
+                        {item.metadata?.duration !== undefined && (
+                          <>
+                            <span>•</span>
+                            <span>{Math.floor(item.metadata.duration / 60)}:{String(Math.floor(item.metadata.duration % 60)).padStart(2, '0')} min</span>
+                          </>
+                        )}
+                        {item.metadata?.pageCount !== undefined && item.metadata.pageCount > 0 && (
+                          <>
+                            <span>•</span>
+                            <span>{item.metadata.pageCount} pagine</span>
+                          </>
+                        )}
+                      </div>
                     </div>
                     <button
                       onClick={() => removeFile(index)}
