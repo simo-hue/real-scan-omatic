@@ -59,9 +59,22 @@ export const FileUpload = ({ onFilesSelected, onUrlSubmit }: FileUploadProps) =>
 
   const handleFiles = (files: File[]) => {
     const validFiles = files.filter(file => {
-      // Support all image formats including HEIC, BMP, TIFF, SVG, WEBP
-      const isImage = file.type.startsWith('image/') || 
-                      file.name.match(/\.(heic|heif|bmp|tiff|tif|svg|webp|avif)$/i);
+      // Block HEIC/HEIF formats - not supported by AI
+      if (file.type === 'image/heic' || file.type === 'image/heif' || 
+          file.name.match(/\.(heic|heif)$/i)) {
+        toast({
+          title: "Formato HEIC non supportato",
+          description: "Converti l'immagine in JPG o PNG. Su iPhone: Impostazioni > Fotocamera > Formati > Più compatibile",
+          variant: "destructive",
+          duration: 8000,
+        });
+        return false;
+      }
+
+      // Support standard image formats
+      const isImage = file.type.startsWith('image/') && 
+                     !file.type.includes('heic') && 
+                     !file.type.includes('heif');
       
       const isValid = isImage || 
                      file.type.startsWith('video/') || 
@@ -71,7 +84,7 @@ export const FileUpload = ({ onFilesSelected, onUrlSubmit }: FileUploadProps) =>
       if (!isValid) {
         toast({
           title: "Tipo di file non supportato",
-          description: `${file.name} non è supportato. Usa immagini, video, testo o PDF`,
+          description: `${file.name} non è supportato. Usa JPG, PNG, WEBP, video, testo o PDF`,
           variant: "destructive",
         });
       }
@@ -80,8 +93,7 @@ export const FileUpload = ({ onFilesSelected, onUrlSubmit }: FileUploadProps) =>
 
     if (validFiles.length > 0) {
       const filesWithPreview = validFiles.map(file => {
-        const isImage = file.type.startsWith('image/') || 
-                       file.name.match(/\.(heic|heif|bmp|tiff|tif|svg|webp|avif)$/i);
+        const isImage = file.type.startsWith('image/');
         
         return {
           file,
@@ -194,7 +206,7 @@ export const FileUpload = ({ onFilesSelected, onUrlSubmit }: FileUploadProps) =>
               type="file"
               multiple
               onChange={handleChange}
-              accept="image/*,.heic,.heif,.bmp,.tiff,.tif,.svg,.webp,.avif,video/*,text/*,.pdf"
+              accept="image/jpeg,image/jpg,image/png,image/webp,image/gif,image/bmp,video/*,text/*,.pdf"
               className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
             />
             
@@ -216,7 +228,7 @@ export const FileUpload = ({ onFilesSelected, onUrlSubmit }: FileUploadProps) =>
               
               <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
                 <div className="h-px w-8 bg-gradient-to-r from-transparent to-primary/50" />
-                <span>Immagini • Video • Testo • PDF</span>
+                <span>JPG • PNG • WEBP • Video • Testo • PDF</span>
                 <div className="h-px w-8 bg-gradient-to-l from-transparent to-primary/50" />
               </div>
             </div>
