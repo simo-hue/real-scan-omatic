@@ -70,12 +70,12 @@ export const FileUpload = ({ onFilesSelected }: FileUploadProps) => {
   };
 
   return (
-    <div className="w-full space-y-6">
+    <div className="w-full space-y-6 p-6 bg-card/60 backdrop-blur-sm rounded-xl">
       <div
-        className={`relative border-2 border-dashed rounded-xl transition-all ${
+        className={`relative border-2 border-dashed rounded-xl transition-all duration-300 ${
           dragActive 
-            ? 'border-accent bg-accent/5 scale-[1.02]' 
-            : 'border-border bg-card hover:border-accent/50'
+            ? 'border-primary bg-primary/5 scale-[1.02] shadow-[0_0_30px_hsl(217_91%_60%_/_0.3)]' 
+            : 'border-border/50 bg-card/30 hover:border-primary/50 hover:bg-primary/5'
         }`}
         onDragEnter={handleDrag}
         onDragLeave={handleDrag}
@@ -92,13 +92,13 @@ export const FileUpload = ({ onFilesSelected }: FileUploadProps) => {
         
         <div className="p-12 text-center space-y-4">
           <div className="flex justify-center">
-            <div className="p-4 bg-gradient-to-br from-accent/10 to-accent/5 rounded-2xl">
-              <Upload className="h-10 w-10 text-accent" />
+            <div className="p-6 bg-gradient-to-br from-primary/20 to-accent-purple/20 rounded-2xl backdrop-blur-sm border border-primary/20 animate-pulse-glow">
+              <Upload className="h-12 w-12 text-primary" />
             </div>
           </div>
           
           <div className="space-y-2">
-            <p className="text-lg font-medium text-foreground">
+            <p className="text-xl font-semibold text-foreground">
               Trascina i file qui
             </p>
             <p className="text-sm text-muted-foreground">
@@ -106,24 +106,27 @@ export const FileUpload = ({ onFilesSelected }: FileUploadProps) => {
             </p>
           </div>
           
-          <p className="text-xs text-muted-foreground">
-            Supporta immagini, video, testo e PDF
-          </p>
+          <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
+            <div className="h-px w-8 bg-gradient-to-r from-transparent to-primary/50" />
+            <span>Immagini • Video • Testo • PDF</span>
+            <div className="h-px w-8 bg-gradient-to-l from-transparent to-primary/50" />
+          </div>
         </div>
       </div>
 
       {selectedFiles.length > 0 && (
         <div className="space-y-3">
-          <p className="text-sm font-medium text-foreground">
+          <p className="text-sm font-semibold text-foreground flex items-center gap-2">
+            <div className="h-5 w-1 bg-gradient-to-b from-primary to-accent-purple rounded-full" />
             File selezionati ({selectedFiles.length})
           </p>
           <div className="space-y-2">
             {selectedFiles.map((file, index) => (
               <div
                 key={index}
-                className="flex items-center gap-3 p-3 bg-card border border-border rounded-lg hover:border-accent/50 transition-all group"
+                className="flex items-center gap-3 p-4 glass-effect rounded-xl hover:border-primary/50 transition-all duration-300 group hover:scale-[1.02]"
               >
-                <div className="text-muted-foreground">
+                <div className="p-2 bg-primary/10 rounded-lg text-primary">
                   {getFileIcon(file.type)}
                 </div>
                 <div className="flex-1 min-w-0">
@@ -136,7 +139,7 @@ export const FileUpload = ({ onFilesSelected }: FileUploadProps) => {
                 </div>
                 <button
                   onClick={() => removeFile(index)}
-                  className="p-1.5 hover:bg-destructive/10 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
+                  className="p-2 hover:bg-destructive/10 rounded-lg transition-all duration-200 opacity-0 group-hover:opacity-100"
                 >
                   <X className="h-4 w-4 text-destructive" />
                 </button>

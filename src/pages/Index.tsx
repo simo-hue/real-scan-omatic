@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { FileUpload } from '@/components/FileUpload';
 import { AnalysisResult } from '@/components/AnalysisResult';
+import { GridBackground } from '@/components/GridBackground';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
-import { supabase } from '@/integrations/supabase/client';
-import { Sparkles, ArrowRight } from 'lucide-react';
+import { Sparkles, ArrowRight, Zap } from 'lucide-react';
 
 interface AnalysisResultData {
   fileName: string;
@@ -70,7 +70,6 @@ const Index = () => {
       const decoder = new TextDecoder();
       let accumulatedText = '';
 
-      // Initialize result with empty analysis
       setResult({
         fileName: file.name,
         fileType: file.type,
@@ -96,7 +95,6 @@ const Index = () => {
               
               if (content) {
                 accumulatedText += content;
-                // Update result in real-time
                 setResult({
                   fileName: file.name,
                   fileType: file.type,
@@ -105,7 +103,7 @@ const Index = () => {
                 });
               }
             } catch (e) {
-              // Ignore JSON parse errors for incomplete chunks
+              // Ignore JSON parse errors
             }
           }
         }
@@ -137,72 +135,119 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
-      <div className="container mx-auto px-4 py-12 max-w-6xl">
+    <div className="min-h-screen relative overflow-hidden">
+      <GridBackground />
+      
+      <div className="container mx-auto px-4 py-12 max-w-7xl relative z-10">
         {/* Header */}
-        <div className="text-center mb-12 space-y-4">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-accent/10 rounded-full">
-            <Sparkles className="h-4 w-4 text-accent" />
-            <span className="text-sm font-medium text-accent">Powered by AI</span>
+        <div className="text-center mb-16 space-y-6">
+          <div className="inline-flex items-center gap-2 px-4 py-2 glass-effect rounded-full border border-primary/20 animate-pulse-glow">
+            <Zap className="h-4 w-4 text-primary" />
+            <span className="text-sm font-semibold bg-gradient-to-r from-primary via-accent-purple to-accent-pink bg-clip-text text-transparent">
+              AI-Powered Analysis Engine
+            </span>
           </div>
           
-          <h1 className="text-5xl font-bold text-foreground tracking-tight">
-            Analisi Intelligente
+          <h1 className="text-6xl md:text-7xl font-bold tracking-tight">
+            <span className="bg-gradient-cyber bg-clip-text text-transparent animate-gradient glow-text-blue">
+              Analisi Intelligente
+            </span>
           </h1>
           
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Carica immagini, video o testo e ottieni un'analisi dettagliata
-            in tempo reale
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+            Scopri insights nascosti nei tuoi contenuti con l'analisi AI in tempo reale.
+            <span className="block mt-2 text-primary font-medium">Veloce. Preciso. Futuristico.</span>
           </p>
         </div>
 
         {/* Main Content */}
-        <div className="grid lg:grid-cols-2 gap-8">
+        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12">
           {/* Upload Section */}
-          <div className="space-y-6">
-            <div className="space-y-2">
-              <h2 className="text-2xl font-semibold text-foreground">
-                Carica i tuoi file
-              </h2>
-              <p className="text-sm text-muted-foreground">
-                Supporta immagini, video, documenti di testo e PDF
+          <div className="space-y-8">
+            <div className="space-y-3">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-1 bg-gradient-to-b from-primary to-accent-purple rounded-full" />
+                <h2 className="text-3xl font-bold text-foreground">
+                  Upload
+                </h2>
+              </div>
+              <p className="text-muted-foreground ml-4">
+                Trascina i tuoi file o clicca per selezionare
               </p>
             </div>
 
-            <FileUpload onFilesSelected={setSelectedFiles} />
+            <div className="glass-effect p-1 rounded-2xl">
+              <FileUpload onFilesSelected={setSelectedFiles} />
+            </div>
 
             <Button
               onClick={analyzeFiles}
               disabled={selectedFiles.length === 0 || isAnalyzing}
-              className="w-full h-12 bg-gradient-to-r from-accent to-accent/80 hover:from-accent/90 hover:to-accent/70 text-white font-medium rounded-xl shadow-lg shadow-accent/25 transition-all disabled:opacity-50 disabled:cursor-not-allowed group"
+              className="w-full h-14 bg-gradient-to-r from-primary via-accent-purple to-accent-pink hover:shadow-[0_0_40px_hsl(217_91%_60%_/_0.5)] text-white font-semibold rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed group relative overflow-hidden"
             >
-              {isAnalyzing ? (
-                <>
-                  <Sparkles className="h-5 w-5 mr-2 animate-spin" />
-                  Analisi in corso...
-                </>
-              ) : (
-                <>
-                  Avvia Analisi
-                  <ArrowRight className="h-5 w-5 ml-2 group-hover:translate-x-1 transition-transform" />
-                </>
-              )}
+              <span className="relative z-10 flex items-center justify-center gap-2">
+                {isAnalyzing ? (
+                  <>
+                    <Sparkles className="h-5 w-5 animate-spin" />
+                    Analisi in corso...
+                  </>
+                ) : (
+                  <>
+                    <Zap className="h-5 w-5" />
+                    Avvia Analisi
+                    <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                  </>
+                )}
+              </span>
+              <div className="absolute inset-0 bg-gradient-to-r from-accent-cyan via-primary to-accent-purple opacity-0 group-hover:opacity-100 transition-opacity duration-500 animate-gradient" />
             </Button>
           </div>
 
           {/* Results Section */}
-          <div className="space-y-6">
-            <div className="space-y-2">
-              <h2 className="text-2xl font-semibold text-foreground">
-                Risultati
-              </h2>
-              <p className="text-sm text-muted-foreground">
-                L'analisi AI verrà visualizzata qui
+          <div className="space-y-8">
+            <div className="space-y-3">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-1 bg-gradient-to-b from-accent-purple to-accent-pink rounded-full" />
+                <h2 className="text-3xl font-bold text-foreground">
+                  Risultati
+                </h2>
+              </div>
+              <p className="text-muted-foreground ml-4">
+                L'analisi AI apparirà in tempo reale
               </p>
             </div>
 
-            <AnalysisResult result={result} isLoading={isAnalyzing} />
+            <div className="glass-effect p-1 rounded-2xl">
+              <AnalysisResult result={result} isLoading={isAnalyzing} />
+            </div>
           </div>
+        </div>
+
+        {/* Features */}
+        <div className="mt-24 grid md:grid-cols-3 gap-8">
+          {[
+            { 
+              title: 'Streaming Real-time', 
+              desc: 'Vedi i risultati apparire mentre l\'AI elabora',
+              gradient: 'from-primary to-accent-cyan'
+            },
+            { 
+              title: 'Multi-formato', 
+              desc: 'Supporta immagini, video, testo e documenti',
+              gradient: 'from-accent-purple to-accent-pink'
+            },
+            { 
+              title: 'AI Avanzata', 
+              desc: 'Powered by Gemini 2.5 Flash per analisi profonde',
+              gradient: 'from-accent-cyan to-primary'
+            },
+          ].map((feature, i) => (
+            <div key={i} className="glass-effect p-6 rounded-2xl group hover:scale-105 transition-all duration-300 hover:shadow-[0_0_30px_hsl(217_91%_60%_/_0.3)]">
+              <div className={`h-1 w-12 bg-gradient-to-r ${feature.gradient} rounded-full mb-4`} />
+              <h3 className="text-xl font-semibold mb-2 text-foreground">{feature.title}</h3>
+              <p className="text-sm text-muted-foreground">{feature.desc}</p>
+            </div>
+          ))}
         </div>
       </div>
     </div>
@@ -210,3 +255,4 @@ const Index = () => {
 };
 
 export default Index;
+
