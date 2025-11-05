@@ -1,5 +1,8 @@
-import { CheckCircle2, AlertCircle, Sparkles, Camera, Calendar, Settings, AlertTriangle } from 'lucide-react';
+import { CheckCircle2, AlertCircle, Sparkles, Camera, Calendar, Settings, AlertTriangle, Activity } from 'lucide-react';
 import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
+import { FFTAnalysisResult } from '@/utils/fftAnalyzer';
 
 interface AnalysisResultProps {
   result: {
@@ -14,6 +17,7 @@ interface AnalysisResultProps {
       modified?: boolean;
       suspiciousEdits?: string[];
     };
+    fftAnalysis?: FFTAnalysisResult;
     evaluation: {
       score: number;
       verdict: string;
@@ -23,8 +27,9 @@ interface AnalysisResultProps {
         contentCredibility: { score: number; details: string };
         manipulationRisk: { score: number; details: string };
         sourceReliability: { score: number; details: string };
+        contextAnalysis?: { score: number; details: string };
+        frequencyAnalysis?: { score: number; details: string };
       };
-      contextAnalysis?: string;
     };
     timestamp: Date;
   } | null;
@@ -157,6 +162,51 @@ export const AnalysisResult = ({ result, isLoading }: AnalysisResultProps) => {
           </div>
         )}
 
+        {/* FFT Analysis */}
+        {result.fftAnalysis && (
+          <div className="p-5 glass-effect rounded-xl border border-border/50 hover:border-primary/30 transition-all duration-300">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="h-4 w-1 bg-gradient-to-b from-purple-500 to-pink-500 rounded-full" />
+              <p className="text-xs font-semibold text-purple-500 uppercase tracking-wide">
+                Analisi Frequency Domain (FFT/DCT)
+              </p>
+            </div>
+            <div className="ml-3 space-y-3">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-3 bg-muted/30 rounded-lg">
+                  <p className="text-xs text-muted-foreground mb-1">High-Frequency Ratio</p>
+                  <p className="text-lg font-mono font-bold text-foreground">
+                    {result.fftAnalysis.highFrequencyRatio.toFixed(4)}
+                  </p>
+                </div>
+                <div className="p-3 bg-muted/30 rounded-lg">
+                  <p className="text-xs text-muted-foreground mb-1">Spectral Anomaly</p>
+                  <p className="text-lg font-mono font-bold text-foreground">
+                    {result.fftAnalysis.spectralAnomaly.toFixed(4)}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
+                <Badge 
+                  variant={result.fftAnalysis.isAiGenerated ? "destructive" : "default"}
+                  className="text-xs"
+                >
+                  {result.fftAnalysis.isAiGenerated ? "⚠️ Possibile AI-Generated" : "✓ Pattern Naturale"}
+                </Badge>
+                <span className="text-xs font-medium text-muted-foreground">
+                  Confidenza: {(result.fftAnalysis.confidence * 100).toFixed(1)}%
+                </span>
+              </div>
+              <div className="p-3 bg-muted/30 rounded-lg">
+                <p className="text-xs text-muted-foreground mb-2">Dettagli Tecnici</p>
+                <p className="text-xs text-foreground leading-relaxed">{result.fftAnalysis.details}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <Separator className="my-2" />
+
         <div className="p-5 glass-effect rounded-xl border border-border/50 hover:border-primary/30 transition-all duration-300">
           <div className="flex items-center gap-2 mb-4">
             <div className="h-4 w-1 bg-gradient-to-b from-accent-cyan to-primary rounded-full" />
@@ -279,25 +329,42 @@ export const AnalysisResult = ({ result, isLoading }: AnalysisResultProps) => {
               </div>
               <p className="text-xs text-muted-foreground">{result.evaluation.breakdown.sourceReliability.details}</p>
             </div>
+
+            {/* Context Analysis */}
+            {result.evaluation.breakdown.contextAnalysis && (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-foreground">Context Analysis</span>
+                  <span className="text-sm font-bold text-primary">{result.evaluation.breakdown.contextAnalysis.score}/100</span>
+                </div>
+                <div className="w-full bg-muted/30 rounded-full h-2 overflow-hidden">
+                  <div 
+                    className={`h-full bg-gradient-to-r ${getScoreColor(result.evaluation.breakdown.contextAnalysis.score)} transition-all duration-500`}
+                    style={{ width: `${result.evaluation.breakdown.contextAnalysis.score}%` }}
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground">{result.evaluation.breakdown.contextAnalysis.details}</p>
+              </div>
+            )}
+
+            {/* Frequency Analysis */}
+            {result.evaluation.breakdown.frequencyAnalysis && (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-foreground">Frequency Domain Analysis</span>
+                  <span className="text-sm font-bold text-primary">{result.evaluation.breakdown.frequencyAnalysis.score}/100</span>
+                </div>
+                <div className="w-full bg-muted/30 rounded-full h-2 overflow-hidden">
+                  <div 
+                    className={`h-full bg-gradient-to-r ${getScoreColor(result.evaluation.breakdown.frequencyAnalysis.score)} transition-all duration-500`}
+                    style={{ width: `${result.evaluation.breakdown.frequencyAnalysis.score}%` }}
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground">{result.evaluation.breakdown.frequencyAnalysis.details}</p>
+              </div>
+            )}
           </div>
         </div>
-
-        {/* Context Analysis */}
-        {result.evaluation.contextAnalysis && (
-          <div className="p-5 glass-effect rounded-xl border border-border/50 hover:border-primary/30 transition-all duration-300">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="h-4 w-1 bg-gradient-to-b from-green-500 to-teal-500 rounded-full" />
-              <p className="text-xs font-semibold text-green-500 uppercase tracking-wide">
-                Analisi Contestuale
-              </p>
-            </div>
-            <div className="ml-3">
-              <p className="text-sm text-foreground leading-relaxed">
-                {result.evaluation.contextAnalysis}
-              </p>
-            </div>
-          </div>
-        )}
       </div>
     </Card>
   );

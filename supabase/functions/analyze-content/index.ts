@@ -18,7 +18,7 @@ serve(async (req) => {
   try {
     console.log('Reading request body...');
     const requestBody = await req.json();
-    const { fileName, fileType, content, isUrl } = requestBody;
+    const { fileName, fileType, content, isUrl, fftAnalysis } = requestBody;
     
     console.log('Request data:', {
       fileName,
@@ -43,6 +43,23 @@ serve(async (req) => {
       
       const imageContent = isUrl ? content : content;
       
+      // Add FFT analysis info to prompt if available
+      let fftInfo = '';
+      if (fftAnalysis) {
+        fftInfo = `
+
+═══ ANALISI FFT/DCT PRE-ESEGUITA (INTEGRA NELLA VALUTAZIONE) ═══
+- High-Frequency Ratio: ${fftAnalysis.highFrequencyRatio.toFixed(4)} ${fftAnalysis.highFrequencyRatio < 0.15 ? '⚠️ SOSPETTO (sotto threshold AI-generation)' : '✓ NORMALE'}
+- Spectral Anomaly: ${fftAnalysis.spectralAnomaly.toFixed(4)} ${fftAnalysis.spectralAnomaly > 0.3 ? '⚠️ ANOMALIA RILEVATA' : '✓ NELLA NORMA'}
+- AI-Generated Detection: ${fftAnalysis.isAiGenerated ? '⚠️ POSITIVO (pattern compatibile con GAN/Diffusion)' : '✓ NEGATIVO'}
+- Confidence: ${(fftAnalysis.confidence * 100).toFixed(1)}%
+- Note Tecniche: ${fftAnalysis.details}
+
+**IMPORTANTE**: Questa analisi FFT client-side DEVE essere integrata nel "frequencyAnalysis" breakdown. Se il ratio < 0.15, è forte indicatore di AI-generation (GANs producono meno rumore ad alta frequenza). Assegna score di conseguenza.
+
+`;
+      }
+      
       messages = [
         {
           role: 'user',
@@ -50,6 +67,7 @@ serve(async (req) => {
             {
               type: 'text',
               text: `Sei un esperto FORENSE DIGITALE CERTIFICATO con 15+ anni in deepfake detection, computer vision forensics e analisi AI-generated content. Analizza questa immagine con metodologia scientifica rigorosa.
+${fftInfo}
 
 ═══ PROTOCOLLO ANALISI TECNICA FORENSE ═══
 
@@ -143,7 +161,11 @@ serve(async (req) => {
         "details": "VALUTAZIONE PROFESSIONALITÀ: qualità immagine (risoluzione, nitidezza)? setup fotografico professionale o amatoriale? post-processing evidente? watermark/signature? camera quality indicators? coerenza metadati con apparente qualità? MINIMO 40 parole."
       }
     },
-    "contextAnalysis": "ANALISI CONTESTUALE ESTESA: elementi temporali (epoca, tecnologia visibile, moda)? markers geografici/culturali (architettura, flora, segnaletica)? coerenza meteorologica? plausibilità evento/scenario? confronto con pattern noti di disinformazione? Se immagine mostra persone note, coerenza con altre foto pubbliche? MINIMO 60 parole. MASSIMO 120 parole."
+    "contextAnalysis": "ANALISI CONTESTUALE ESTESA: elementi temporali (epoca, tecnologia visibile, moda)? markers geografici/culturali (architettura, flora, segnaletica)? coerenza meteorologica? plausibilità evento/scenario? confronto con pattern noti di disinformazione? Se immagine mostra persone note, coerenza con altre foto pubbliche? MINIMO 60 parole. MASSIMO 120 parole.",
+    "frequencyAnalysis": {
+      "score": <0-100, dove 100=CERTAMENTE NATURALE, 0=CERTAMENTE AI-GENERATED>,
+      "details": "ANALISI FREQUENCY DOMAIN: integra risultati FFT/DCT pre-calcolati (se disponibili). High-frequency ratio interpretation (< 0.15 = sospetto AI, > 0.20 = naturale). Spectral anomalies rilevate. Pattern compatibile con GANs/Diffusion models? Rumore sensore fotocamera presente? SPECIFICA cosa indicano i dati FFT. MINIMO 80 parole."
+    }
   }
 }
 

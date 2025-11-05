@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
 import { Sparkles, ArrowRight, Zap } from 'lucide-react';
 import { extractExifData } from '@/utils/exifExtractor';
+import { analyzeImageFFT, FFTAnalysisResult } from '@/utils/fftAnalyzer';
 
 interface AnalysisResultData {
   fileName: string;
@@ -20,6 +21,7 @@ interface AnalysisResultData {
     modified?: boolean;
     suspiciousEdits?: string[];
   };
+  fftAnalysis?: FFTAnalysisResult;
   evaluation: {
     score: number;
     verdict: string;
@@ -29,8 +31,9 @@ interface AnalysisResultData {
       contentCredibility: { score: number; details: string };
       manipulationRisk: { score: number; details: string };
       sourceReliability: { score: number; details: string };
+      contextAnalysis?: { score: number; details: string };
+      frequencyAnalysis?: { score: number; details: string };
     };
-    contextAnalysis?: string;
   };
   timestamp: Date;
 }
@@ -120,12 +123,23 @@ const Index = () => {
         }
       }
 
-      const requestPayload = {
+      const requestPayload: any = {
         fileName: fileName,
         fileType: fileType,
         content: content,
         isUrl: !!selectedUrl,
       };
+
+      // Perform FFT analysis for images after creating the payload
+      if (fileType.startsWith('image/') && !selectedUrl && selectedFiles[0]) {
+        console.log('Performing FFT analysis...');
+        const fftResult = await analyzeImageFFT(selectedFiles[0]);
+        console.log('FFT analysis:', fftResult);
+        
+        if (fftResult) {
+          requestPayload.fftAnalysis = fftResult;
+        }
+      }
 
       console.log('Preparing request:', {
         fileName,
@@ -239,6 +253,7 @@ const Index = () => {
           fileType,
           description: parsedResult.description || '',
           exifData,
+          fftAnalysis: (requestPayload as any).fftAnalysis,
           evaluation: {
             score: parsedResult.evaluation?.score || 0,
             verdict: parsedResult.evaluation?.verdict || '',
@@ -249,7 +264,6 @@ const Index = () => {
               manipulationRisk: { score: 0, details: 'Non disponibile' },
               sourceReliability: { score: 0, details: 'Non disponibile' }
             },
-            contextAnalysis: parsedResult.evaluation?.contextAnalysis
           },
           timestamp: new Date()
         });
@@ -261,6 +275,7 @@ const Index = () => {
           fileType,
           description: accumulatedText,
           exifData,
+          fftAnalysis: (requestPayload as any).fftAnalysis,
           evaluation: {
             score: 0,
             verdict: 'Analisi non strutturata',
