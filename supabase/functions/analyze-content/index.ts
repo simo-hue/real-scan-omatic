@@ -67,7 +67,7 @@ serve(async (req) => {
 
 Struttura richiesta:
 {
-  "description": "Descrizione dettagliata dell'immagine: soggetti principali, oggetti, scene, contesto visivo, composizione, colori e illuminazione",
+  "description": "Descrizione BREVE in massimo 2-3 frasi di cosa mostra l'immagine (soggetti principali e contesto)",
   "evaluation": {
     "score": <numero intero da 0 a 100, dove 0 = sicuramente AI-generato/deepfake, 100 = sicuramente reale/autentico>,
     "verdict": "Probabilmente reale" oppure "Probabilmente AI-generato" oppure "Incerto",
@@ -103,7 +103,7 @@ IMPORTANTE: Rispondi SOLO con JSON valido, nient'altro.`,
 
 Struttura richiesta:
 {
-  "description": "Riassunto dettagliato del contenuto principale della pagina, scopo e argomenti trattati",
+  "description": "Riassunto BREVE in massimo 2-3 frasi del contenuto principale della pagina",
   "evaluation": {
     "score": <numero intero da 0 a 100, dove 0 = disinformazione certa, 100 = fonte completamente affidabile>,
     "verdict": "Affidabile" oppure "Sospetto" oppure "Disinformazione",
@@ -130,7 +130,7 @@ IMPORTANTE: Rispondi SOLO con JSON valido.`,
 
 Struttura richiesta:
 {
-  "description": "Riassunto dei punti chiave e argomenti principali del testo, tema centrale, struttura e organizzazione",
+  "description": "Riassunto BREVE in massimo 2-3 frasi dei punti chiave del testo",
   "evaluation": {
     "score": <numero intero da 0 a 100, dove 0 = sicuramente falso/disinformazione, 100 = completamente accurato e verificabile>,
     "verdict": "Accurato" oppure "Sospetto" oppure "Disinformazione",
@@ -153,7 +153,7 @@ IMPORTANTE: Rispondi SOLO con JSON valido.`,
 
 Struttura richiesta:
 {
-  "description": "Descrizione del contenuto del video basata su URL, nome file e contesto disponibile",
+  "description": "Descrizione BREVE in massimo 2-3 frasi del contenuto del video basata su URL e nome file",
   "evaluation": {
     "score": <numero intero da 0 a 100, dove 0 = molto sospetto/deepfake probabile, 100 = probabilmente autentico>,
     "verdict": "Da verificare manualmente",
