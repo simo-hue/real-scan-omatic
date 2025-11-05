@@ -5,7 +5,12 @@ interface AnalysisResultProps {
   result: {
     fileName: string;
     fileType: string;
-    analysis: string;
+    description: string;
+    evaluation: {
+      score: number;
+      verdict: string;
+      reasoning: string;
+    };
     timestamp: Date;
   } | null;
   isLoading: boolean;
@@ -84,19 +89,54 @@ export const AnalysisResult = ({ result, isLoading }: AnalysisResultProps) => {
 
         <div className="p-5 glass-effect rounded-xl border border-border/50 hover:border-primary/30 transition-all duration-300">
           <div className="flex items-center gap-2 mb-4">
-            <div className="h-4 w-1 bg-gradient-to-b from-accent-purple to-accent-pink rounded-full" />
-            <p className="text-xs font-semibold text-accent-purple uppercase tracking-wide">
-              Risultato analisi
+            <div className="h-4 w-1 bg-gradient-to-b from-accent-cyan to-primary rounded-full" />
+            <p className="text-xs font-semibold text-accent-cyan uppercase tracking-wide">
+              Descrizione Contenuto
             </p>
           </div>
           <div className="prose prose-sm max-w-none ml-3">
-            <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap min-h-[100px]">
-              {result.analysis || (
+            <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">
+              {result.description || (
                 <span className="text-muted-foreground italic flex items-center gap-2">
                   <Sparkles className="h-4 w-4 animate-spin" />
                   Generazione in corso...
                 </span>
               )}
+            </p>
+          </div>
+        </div>
+
+        <div className="p-5 glass-effect rounded-xl border border-border/50 hover:border-primary/30 transition-all duration-300">
+          <div className="flex items-center gap-2 mb-4">
+            <div className="h-4 w-1 bg-gradient-to-b from-accent-purple to-accent-pink rounded-full" />
+            <p className="text-xs font-semibold text-accent-purple uppercase tracking-wide">
+              Valutazione AI
+            </p>
+          </div>
+          <div className="ml-3 space-y-4">
+            <div className="flex items-center gap-4">
+              <div className="flex-1">
+                <div className="flex items-baseline gap-2 mb-2">
+                  <span className="text-3xl font-bold bg-gradient-to-r from-accent-purple to-accent-pink bg-clip-text text-transparent">
+                    {result.evaluation.score}
+                  </span>
+                  <span className="text-sm text-muted-foreground">/ 100</span>
+                </div>
+                <div className="w-full bg-muted/30 rounded-full h-2.5 overflow-hidden">
+                  <div 
+                    className="h-full bg-gradient-to-r from-accent-purple to-accent-pink rounded-full transition-all duration-500"
+                    style={{ width: `${result.evaluation.score}%` }}
+                  />
+                </div>
+              </div>
+              <div className="px-4 py-2 bg-accent-purple/10 rounded-lg border border-accent-purple/20">
+                <p className="text-sm font-semibold text-accent-purple whitespace-nowrap">
+                  {result.evaluation.verdict}
+                </p>
+              </div>
+            </div>
+            <p className="text-sm text-foreground leading-relaxed">
+              {result.evaluation.reasoning}
             </p>
           </div>
         </div>

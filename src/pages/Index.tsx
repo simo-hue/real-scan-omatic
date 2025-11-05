@@ -10,7 +10,12 @@ import { Sparkles, ArrowRight, Zap } from 'lucide-react';
 interface AnalysisResultData {
   fileName: string;
   fileType: string;
-  analysis: string;
+  description: string;
+  evaluation: {
+    score: number; // 0-100
+    verdict: string;
+    reasoning: string;
+  };
   timestamp: Date;
 }
 
@@ -163,13 +168,6 @@ const Index = () => {
       let accumulatedText = '';
       let chunkCount = 0;
 
-      setResult({
-        fileName: fileName,
-        fileType: fileType,
-        analysis: '',
-        timestamp: new Date(),
-      });
-
       while (true) {
         const { done, value } = await reader.read();
         if (done) {
@@ -197,12 +195,6 @@ const Index = () => {
               
               if (content) {
                 accumulatedText += content;
-                setResult({
-                  fileName: fileName,
-                  fileType: fileType,
-                  analysis: accumulatedText,
-                  timestamp: new Date(),
-                });
               }
             } catch (parseError) {
               console.warn('Error parsing SSE data:', data.substring(0, 100), parseError);
@@ -212,6 +204,39 @@ const Index = () => {
       }
 
       console.log('Analysis complete. Total text length:', accumulatedText.length);
+      console.log('Parsing JSON response...');
+
+      // Parse the JSON response
+      try {
+        const parsedResult = JSON.parse(accumulatedText);
+        console.log('✅ JSON parsed successfully:', parsedResult);
+        
+        setResult({
+          fileName,
+          fileType,
+          description: parsedResult.description || '',
+          evaluation: {
+            score: parsedResult.evaluation?.score || 0,
+            verdict: parsedResult.evaluation?.verdict || '',
+            reasoning: parsedResult.evaluation?.reasoning || ''
+          },
+          timestamp: new Date()
+        });
+      } catch (parseError) {
+        console.error('❌ JSON parse error:', parseError);
+        // Fallback: use as plain text
+        setResult({
+          fileName,
+          fileType,
+          description: accumulatedText,
+          evaluation: {
+            score: 0,
+            verdict: 'Analisi non strutturata',
+            reasoning: 'Impossibile parsare la risposta in formato strutturato'
+          },
+          timestamp: new Date()
+        });
+      }
       
       toast({
         title: "Analisi completata",

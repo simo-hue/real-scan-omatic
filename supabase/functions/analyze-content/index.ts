@@ -55,20 +55,27 @@ serve(async (req) => {
     if (fileType.startsWith('image/') || fileType === 'image/url') {
       console.log('Processing image', isUrl ? 'from URL' : 'file');
       
-      // For URLs, use the URL directly; for uploads, use base64
       const imageContent = isUrl ? content : content;
       
       messages = [
-        {
-          role: 'system',
-          content: 'Sei un esperto analista di immagini specializzato nel riconoscimento di deepfake e contenuti manipolati. Fornisci un\'analisi dettagliata e strutturata dell\'immagine in italiano, descrivendo: 1) Soggetti e oggetti principali 2) Possibili segni di manipolazione digitale (artefatti, incongruenze di illuminazione, texture anomale, bordi sfocati) 3) Composizione e layout 4) Colori e illuminazione 5) Autenticità percepita (0-100%). Usa paragrafi chiari e separati. Sii specifico sui segnali di deepfake se presenti.',
-        },
         {
           role: 'user',
           content: [
             {
               type: 'text',
-              text: 'Analizza questa immagine in modo dettagliato, prestando particolare attenzione a possibili segni di manipolazione, deepfake o generazione AI. Fornisci una percentuale di autenticità alla fine.',
+              text: `Analizza questa immagine e fornisci una risposta ESCLUSIVAMENTE in formato JSON valido, senza alcun testo aggiuntivo prima o dopo.
+
+Struttura richiesta:
+{
+  "description": "Descrizione dettagliata dell'immagine: soggetti principali, oggetti, scene, contesto visivo, composizione, colori e illuminazione",
+  "evaluation": {
+    "score": <numero intero da 0 a 100, dove 0 = sicuramente AI-generato/deepfake, 100 = sicuramente reale/autentico>,
+    "verdict": "Probabilmente reale" oppure "Probabilmente AI-generato" oppure "Incerto",
+    "reasoning": "Analisi tecnica dettagliata considerando: qualità generale, presenza di artefatti digitali, incongruenze di illuminazione e ombre, proporzioni e geometria, texture della pelle (se applicabile), naturalezza dello sfondo, coerenza generale dell'immagine. Specifica eventuali segnali di manipolazione trovati."
+  }
+}
+
+IMPORTANTE: Rispondi SOLO con JSON valido, nient'altro.`,
             },
             {
               type: 'image_url',
@@ -82,7 +89,6 @@ serve(async (req) => {
     } else if (fileType === 'text/html') {
       console.log('Processing webpage from URL');
       
-      // Fetch webpage content
       try {
         const webResponse = await fetch(content);
         if (!webResponse.ok) {
@@ -92,12 +98,23 @@ serve(async (req) => {
         
         messages = [
           {
-            role: 'system',
-            content: 'Sei un esperto analista web. Fornisci un\'analisi dettagliata del contenuto della pagina web in italiano, includendo: 1) Scopo e contenuto principale 2) Credibilità e affidabilità della fonte 3) Segnali di potenziale disinformazione 4) Stile e qualità del contenuto 5) Raccomandazioni. Usa paragrafi chiari e separati.',
-          },
-          {
             role: 'user',
-            content: `Analizza il contenuto di questa pagina web in modo dettagliato:\n\nURL: ${fileName}\n\nContenuto:\n${htmlContent.substring(0, 8000)}`,
+            content: `Analizza questa pagina web e fornisci una risposta ESCLUSIVAMENTE in formato JSON valido.
+
+Struttura richiesta:
+{
+  "description": "Riassunto dettagliato del contenuto principale della pagina, scopo e argomenti trattati",
+  "evaluation": {
+    "score": <numero intero da 0 a 100, dove 0 = disinformazione certa, 100 = fonte completamente affidabile>,
+    "verdict": "Affidabile" oppure "Sospetto" oppure "Disinformazione",
+    "reasoning": "Analisi critica dettagliata considerando: credibilità e reputazione della fonte, presenza di bias evidenti, verifica dei fatti presentati, qualità del linguaggio utilizzato, presenza di clickbait o sensazionalismo, riferimenti e citazioni, coerenza delle informazioni"
+  }
+}
+
+URL: ${fileName}
+Contenuto: ${htmlContent.substring(0, 8000)}
+
+IMPORTANTE: Rispondi SOLO con JSON valido.`,
           },
         ];
       } catch (fetchError) {
@@ -108,12 +125,22 @@ serve(async (req) => {
       console.log('Processing text/pdf file');
       messages = [
         {
-          role: 'system',
-          content: 'Sei un esperto analista di testo. Fornisci un\'analisi dettagliata e strutturata del contenuto in italiano, includendo: 1) Tema e argomento principale 2) Tono e stile di scrittura 3) Punti chiave e messaggi principali 4) Struttura e organizzazione 5) Pubblico target e scopo 6) Possibili incongruenze o segnali di contenuto generato da AI. Usa paragrafi chiari e separati.',
-        },
-        {
           role: 'user',
-          content: `Analizza questo testo in modo dettagliato e strutturato:\n\n${content.substring(0, 4000)}`,
+          content: `Analizza questo testo e fornisci una risposta ESCLUSIVAMENTE in formato JSON valido.
+
+Struttura richiesta:
+{
+  "description": "Riassunto dei punti chiave e argomenti principali del testo, tema centrale, struttura e organizzazione",
+  "evaluation": {
+    "score": <numero intero da 0 a 100, dove 0 = sicuramente falso/disinformazione, 100 = completamente accurato e verificabile>,
+    "verdict": "Accurato" oppure "Sospetto" oppure "Disinformazione",
+    "reasoning": "Analisi dettagliata considerando: verifica dei fatti presentati, logica e coerenza dell'argomentazione, presenza e qualità delle fonti citate, bias evidenti, possibili segnali di contenuto AI-generato, tono e stile di scrittura, pubblico target e intento"
+  }
+}
+
+Testo: ${content.substring(0, 4000)}
+
+IMPORTANTE: Rispondi SOLO con JSON valido.`,
         },
       ];
     } else if (fileType.startsWith('video/') || fileType === 'video/url') {
@@ -121,12 +148,23 @@ serve(async (req) => {
       const videoRef = isUrl ? content : fileName;
       messages = [
         {
-          role: 'system',
-          content: 'Sei un esperto analista video specializzato nel riconoscimento di deepfake. Fornisci suggerimenti dettagliati su cosa analizzare in un video in italiano, includendo: sincronizzazione labiale, movimenti oculari, battiti di ciglia, coerenza dell\'illuminazione frame-by-frame, artefatti digitali ai bordi del viso, texture della pelle, microespressioni, e altri segnali di manipolazione. Spiega anche come verificare l\'autenticità.',
-        },
-        {
           role: 'user',
-          content: `Fornisci un'analisi dettagliata e consigli per verificare l'autenticità di questo video: ${videoRef}. Elenca tutti i segnali di deepfake da cercare e come identificarli.`,
+          content: `Fornisci un'analisi per questo video in formato JSON valido.
+
+Struttura richiesta:
+{
+  "description": "Descrizione del contenuto del video basata su URL, nome file e contesto disponibile",
+  "evaluation": {
+    "score": <numero intero da 0 a 100, dove 0 = molto sospetto/deepfake probabile, 100 = probabilmente autentico>,
+    "verdict": "Da verificare manualmente",
+    "reasoning": "Guida dettagliata all'analisi manuale del video. Elenca i segnali specifici da cercare: sincronizzazione labiale, movimenti oculari e battiti di ciglia, coerenza dell'illuminazione frame-by-frame, artefatti digitali ai bordi del viso, texture e naturalezza della pelle, microespressioni facciali, transizioni anomale, qualità video inconsistente, elementi specifici da controllare frame-by-frame"
+  }
+}
+
+Video: ${videoRef}
+
+Nota: L'analisi video completa richiede visione diretta. Fornisci una guida per l'analisi manuale dell'utente.
+IMPORTANTE: Rispondi SOLO con JSON valido.`,
         },
       ];
     } else {
