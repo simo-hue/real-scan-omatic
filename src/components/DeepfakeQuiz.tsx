@@ -36,11 +36,11 @@ const questionBank: QuizQuestion[] = [
     isDeepfake: true,
     difficulty: "easy",
     hints: [
-      "Osserva attentamente il movimento delle labbra mentre parla",
-      "L'audio sembra perfettamente sincronizzato con i movimenti della bocca?",
-      "Guarda se ci sono lievi discontinuità tra l'audio e i movimenti facciali"
+      "Osserva la mano alzata - il movimento sembra naturale o leggermente rigido?",
+      "Guarda la bocca mentre parla - le labbra si muovono in modo completamente sincronizzato?",
+      "Nota lo sfondo blu sfocato - i bordi del viso rimangono nitidi o c'è sfocatura innaturale?"
     ],
-    explanation: "Questo è un deepfake. Sebbene la qualità generale sia buona, ci sono sottili incongruenze tra il movimento delle labbra e l'audio. I deepfake video spesso presentano problemi di sincronizzazione labiale, specialmente con parole che richiedono movimenti labiali specifici. Inoltre, le microespressioni facciali potrebbero apparire leggermente ritardate rispetto all'emozione trasmessa dalla voce."
+    explanation: "Questo è un deepfake generato da AI. Sebbene la qualità generale sia alta, ci sono segnali rivelatori: il gesto della mano alzata appare leggermente innaturale e rigido. I bordi del viso, specialmente vicino ai capelli contro lo sfondo blu, mostrano una leggera inconsistenza. La texture della pelle appare troppo uniforme senza le naturali imperfezioni. Questo tipo di immagini AI-generated manca delle sottili imperfezioni e variazioni che caratterizzano le foto autentiche."
   },
   {
     id: 2,
@@ -50,11 +50,11 @@ const questionBank: QuizQuestion[] = [
     isDeepfake: true,
     difficulty: "easy",
     hints: [
-      "Esamina attentamente le ombre sul viso e confrontale con la direzione della luce di sfondo",
-      "L'illuminazione sul soggetto corrisponde all'illuminazione dell'ambiente?",
-      "Guarda i bordi del viso - sembrano naturali o leggermente sfocati?"
+      "Esamina la texture della pelle - sembra naturale o eccessivamente levigata?",
+      "Guarda lo sfondo sfocato dell'ufficio - i dettagli architettonici sono coerenti?",
+      "Osserva gli occhi - la riflessione della luce in entrambi gli occhi è identica e naturale?"
     ],
-    explanation: "Questa è un'immagine manipolata. Uno dei segnali principali è l'inconsistenza dell'illuminazione: le ombre sul viso non corrispondono perfettamente alla direzione e intensità della luce visibile nell'ambiente circostante. Inoltre, guardando attentamente i bordi del viso, si può notare una leggera sfocatura innaturale, tipica di quando un volto viene sostituito o modificato digitalmente."
+    explanation: "Questa è un'immagine generata da AI. I segnali principali includono: la pelle appare innaturalmente perfetta e levigata, priva delle normali imperfezioni, pori e texture naturale. Lo sfondo, sebbene sfocato professionalmente, mostra elementi architettonici che non seguono una logica spaziale coerente. La simmetria quasi perfetta del viso e l'uniformità dell'illuminazione sono tipiche delle generazioni AI. Le immagini reali mostrano sempre piccole asimmetrie naturali e variazioni nella texture della pelle."
   },
   {
     id: 3,
@@ -64,11 +64,11 @@ const questionBank: QuizQuestion[] = [
     isDeepfake: false,
     difficulty: "easy",
     hints: [
-      "Osserva la coerenza dei movimenti naturali e delle espressioni facciali",
-      "La qualità video è uniforme in tutta la scena?",
-      "Ci sono artefatti digitali o incongruenze visibili?"
+      "Osserva l'illuminazione professionale dello studio - è coerente su entrambe le persone?",
+      "Le attrezzature visibili (telecamere, luci) sono reali e coerenti con uno studio TV?",
+      "I movimenti e le posture delle due persone sembrano naturali e spontanei?"
     ],
-    explanation: "Questo contenuto è autentico. Tutti gli elementi sono coerenti: l'illuminazione è uniforme e professionale, i movimenti sono fluidi e naturali, le espressioni facciali corrispondono al tono della conversazione, e non ci sono artefatti digitali. La qualità del video è costante in tutto il frame e le interazioni tra le persone appaiono genuine e spontanee."
+    explanation: "Questo contenuto è autentico. Gli indicatori chiave includono: l'illuminazione professionale dello studio è perfettamente coerente su entrambi i soggetti, creando le tipiche ombre controllate di un ambiente broadcast. Le attrezzature visibili nello sfondo (telecamere, luci, monitors) mostrano dettagli realistici e coerenti. Le posture e i gesti delle due persone mostrano la naturale asimmetria e spontaneità delle interazioni umane reali. La qualità dell'immagine è uniforme e non mostra i tipici artefatti di compressione o generazione AI."
   },
   {
     id: 4,
@@ -78,11 +78,11 @@ const questionBank: QuizQuestion[] = [
     isDeepfake: false,
     difficulty: "easy",
     hints: [
-      "Esamina l'illuminazione naturale e come le ombre cadono su tutti i soggetti",
-      "Le proporzioni del viso e del corpo sono naturali per tutti?",
-      "Ci sono segni di manipolazione digitale o artefatti insoliti?"
+      "Guarda l'illuminazione naturale del sole - crea ombre coerenti su tutti i membri della famiglia?",
+      "Lo sfondo sfocato del parco mostra una naturale profondità di campo?",
+      "Le espressioni e i sorrisi mostrano variazioni naturali tra i diversi membri?"
     ],
-    explanation: "Questa è una fotografia genuina. L'illuminazione naturale del sole crea ombre coerenti su tutti i soggetti. Le texture della pelle mostrano dettagli naturali senza l'eccessiva levigatezza tipica delle manipolazioni. Le proporzioni facciali e corporee sono tutte naturali e le espressioni mostrano le microespressioni tipiche di sorrisi autentici, come le rughe intorno agli occhi."
+    explanation: "Questa è una fotografia genuina. L'illuminazione naturale del sole crea ombre coerenti e realistiche su tutti e quattro i membri della famiglia, con la luce che proviene dalla stessa direzione. Lo sfondo sfocato mostra una naturale profondità di campo tipica delle fotocamere moderne. Le texture della pelle mostrano dettagli naturali, imperfezioni e variazioni. Ogni persona ha un'espressione unica e naturale - i bambini con sorrisi spontanei, gli adulti con espressioni autentiche. La composizione informale e le piccole imperfezioni (pieghe nei vestiti, capelli mossi dal vento) sono tipiche delle foto di famiglia autentiche."
   },
   
   // Medium questions
@@ -94,11 +94,11 @@ const questionBank: QuizQuestion[] = [
     isDeepfake: true,
     difficulty: "medium",
     hints: [
-      "Guarda attentamente la texture della pelle - sembra troppo liscia o eccessivamente perfetta?",
-      "I bordi del viso sembrano leggermente sfocati o hanno un alone sottile?",
-      "Le celebrità tipicamente promuovono prodotti finanziari non regolamentati?"
+      "La pelle del viso sembra innaturalmente perfetta, priva di pori o imperfezioni?",
+      "Osserva il prodotto tenuto in mano - l'interazione sembra naturale o posata?",
+      "Lo sfondo sfocato del caffè mostra elementi coerenti o ci sono anomalie?"
     ],
-    explanation: "Questo è un deepfake sofisticato. Sebbene la qualità generale sia alta, ci sono segnali rivelatori: la texture della pelle appare innaturalmente liscia e priva di imperfezioni tipiche, suggerendo un forte processing digitale. C'è una leggera sfocatura intorno ai bordi del viso, specialmente vicino ai capelli. Inoltre, dal punto di vista contestuale, è altamente insolito che celebrità affidabili promuovano prodotti finanziari rischiosi o schemi di investimento non regolamentati - questo è spesso un segnale di contenuto fraudolento."
+    explanation: "Questo è un deepfake sofisticato generato da AI. I segnali rivelatori includono: la texture della pelle è innaturalmente liscia e priva di imperfezioni, pori o variazioni naturali. Il sorriso è perfetto ma manca delle microespressioni sottili tipiche delle emozioni genuine. Il modo in cui il prodotto è tenuto in mano sembra posato e artificiale. Inoltre, dal punto di vista contestuale, è altamente insolito che celebrità affidabili promuovano prodotti finanziari rischiosi - questo è un segnale d'allarme comune nelle truffe con deepfake."
   },
   {
     id: 6,
@@ -108,11 +108,11 @@ const questionBank: QuizQuestion[] = [
     isDeepfake: false,
     difficulty: "medium",
     hints: [
-      "Le fonti citate possono essere verificate indipendentemente?",
-      "Lo stile di scrittura è coerente con il giornalismo professionale?",
-      "Le informazioni possono essere confermate da altre fonti affidabili?"
+      "Tutte le persone citate possono essere verificate tramite ricerca online?",
+      "Le statistiche e i dati hanno fonti primarie tracciabili?",
+      "Lo stile di scrittura è coerente con il giornalismo professionale verificato?"
     ],
-    explanation: "Questo è contenuto autentico. Gli indicatori chiave includono: citazioni verificabili con nomi completi e titoli che possono essere controllati, riferimenti a documenti pubblici accessibili, coerenza stilistica con standard giornalistici professionali, e la possibilità di confermare le informazioni attraverso fonti multiple indipendenti. Il giornalismo legittimo fornisce sempre tracce verificabili che permettono ai lettori di controllare l'accuratezza delle informazioni."
+    explanation: "Questo è contenuto autentico. Gli indicatori chiave includono: tutte le citazioni provengono da persone reali con nomi completi, titoli verificabili e affiliazioni istituzionali controllabili. Le statistiche citate possono essere rintracciate alle loro fonti originali (enti governativi, studi pubblicati). Lo stile di scrittura segue gli standard giornalistici professionali con struttura logica, equilibrio nella presentazione, e riferimenti incrociati. La possibilità di verificare ogni affermazione attraverso fonti multiple indipendenti è il marchio del giornalismo autentico."
   },
   {
     id: 7,
@@ -136,11 +136,11 @@ const questionBank: QuizQuestion[] = [
     isDeepfake: false,
     difficulty: "medium",
     hints: [
-      "La fonte è una piattaforma di streaming ufficiale e verificata?",
-      "I movimenti degli atleti sono fluidi e fisicamente plausibili?",
-      "Le reazioni della folla e dei giocatori sono sincronizzate con gli eventi?"
+      "I movimenti atletici complessi (corsa, salti, cambi di direzione) sono fisicamente plausibili?",
+      "Le divise dei giocatori mostrano pieghe naturali e movimento del tessuto durante l'azione?",
+      "Il pubblico sullo sfondo mostra reazioni variegate e naturali?"
     ],
-    explanation: "Questo è contenuto completamente autentico. Gli streaming live ufficiali hanno diversi indicatori di autenticità: la fonte è verificata e ufficiale, i movimenti atletici sono complessi e fisicamente coerenti (estremamente difficili da falsificare in tempo reale), le reazioni multiple (giocatori, allenatori, pubblico) sono tutte sincronizzate naturalmente con gli eventi del gioco. La complessità e l'imprevedibilità di un evento sportivo live rendono praticamente impossibile creare un deepfake convincente in tempo reale."
+    explanation: "Questo è contenuto completamente autentico da un evento sportivo reale. Gli streaming live ufficiali hanno molteplici indicatori di autenticità: i movimenti atletici complessi sono perfettamente coordinati e fisicamente plausibili (estremamente difficili da falsificare in tempo reale). Le divise mostrano movimento naturale del tessuto con pieghe che cambiano realisticamente. Il pubblico sullo sfondo mostra una varietà naturale di reazioni e comportamenti. La complessità e l'imprevedibilità di un evento sportivo live rendono praticamente impossibile creare un deepfake convincente in tempo reale."
   },
   
   // Hard questions
@@ -152,11 +152,11 @@ const questionBank: QuizQuestion[] = [
     isDeepfake: true,
     difficulty: "hard",
     hints: [
-      "Anche se sembra il tuo familiare, noti pattern ripetitivi nei gesti o nelle espressioni?",
-      "Le microespressioni facciali (rughe, movimenti muscolari sottili) sono completamente naturali?",
-      "Puoi verificare la storia attraverso altri canali di comunicazione con la stessa persona?"
+      "Osserva lo sfondo della stanza - gli elementi decorativi e i mobili seguono una logica spaziale coerente?",
+      "La texture della pelle sul viso mostra dettagli naturali come pori, rughe e imperfezioni?",
+      "L'espressione facciale cambia in modo fluido o ci sono transizioni leggermente innaturali?"
     ],
-    explanation: "Questo è un deepfake molto sofisticato, parte di un tipo di truffa in crescita. Anche se la qualità è impressionante e le caratteristiche generali sembrano corrette, un'osservazione attenta rivela sottili ripetizioni nei pattern di movimento e nelle espressioni. I deepfake più avanzati possono replicare volti e voci in modo molto convincente, ma spesso falliscono nelle microespressioni più sottili e complesse. Il contesto (richiesta urgente di denaro) è un segnale d'allarme importante. La verifica attraverso un canale di comunicazione diverso (telefono, video chiamata live) rivelerebbe rapidamente la frode."
+    explanation: "Questo è un deepfake molto sofisticato, parte di un tipo di truffa in crescita. Sebbene la qualità generale sia impressionante, un'analisi attenta rivela: lo sfondo mostra elementi (tende, fiori, mobili) che appaiono generati dall'AI con proporzioni e prospettiva non del tutto coerenti. La texture della pelle, pur sembrando buona a prima vista, è troppo uniforme e manca della naturale variazione di pori e imperfezioni. Le transizioni tra espressioni facciali sono leggermente troppo fluide, mancando delle sottili imperfezioni dei movimenti muscolari reali. Il contesto (richiesta urgente di denaro) è un segnale d'allarme importante - sempre verificare attraverso un canale alternativo (chiamata telefonica diretta)."
   },
   {
     id: 10,
@@ -166,11 +166,11 @@ const questionBank: QuizQuestion[] = [
     isDeepfake: true,
     difficulty: "hard",
     hints: [
-      "Tutte le affermazioni scientifiche e le statistiche possono essere verificate in fonti accademiche?",
-      "La struttura logica è 'troppo perfetta' mancando delle tipiche imperfezioni della scrittura umana?",
-      "L'autore ha credenziali verificabili e altri lavori pubblicati?"
+      "Ogni statistica citata può essere rintracciata a uno studio pubblicato o fonte primaria?",
+      "I nomi degli autori citati sono reali e hanno pubblicazioni verificabili in quel campo?",
+      "La bibliografia include DOI o link a paper peer-reviewed verificabili?"
     ],
-    explanation: "Questo è contenuto AI-generated mascherato da articolo scientifico. L'AI moderna può creare testi con struttura logica perfetta e linguaggio tecnico convincente, ma spesso include 'allucinazioni' - affermazioni che sembrano plausibili ma non sono verificabili. La perfezione eccessiva nella struttura, senza le piccole imperfezioni tipiche della scrittura umana, è un segnale. Gli articoli scientifici autentici hanno sempre riferimenti verificabili, affiliazioni istituzionali degli autori, e le statistiche possono essere rintracciate alle loro fonti originali. L'assenza di questi elementi verificabili, combinata con affermazioni che non compaiono in database scientifici, rivela la natura artificiale del contenuto."
+    explanation: "Questo è contenuto AI-generated mascherato da articolo scientifico. L'AI moderna può creare testi con struttura logica perfetta e linguaggio tecnico convincente, ma spesso include 'allucinazioni' - affermazioni che sembrano plausibili ma non sono verificabili. Gli articoli scientifici autentici hanno sempre: riferimenti completi con DOI verificabili, autori con affiliazioni istituzionali reali e storia di pubblicazioni, statistiche che possono essere rintracciate alle loro fonti originali in database pubblici. L'assenza di questi elementi verificabili, combinata con una struttura 'troppo perfetta', rivela la natura artificiale del contenuto."
   },
   {
     id: 11,
@@ -180,11 +180,11 @@ const questionBank: QuizQuestion[] = [
     isDeepfake: false,
     difficulty: "hard",
     hints: [
-      "Le multiple angolazioni di ripresa mostrano coerenza perfetta nei movimenti e timing?",
-      "Ci sono incoerenze tra le diverse prospettive che potrebbero indicare manipolazione?",
-      "Le risposte alle domande spontanee mostrano tempi di reazione naturali?"
+      "Le quattro angolazioni mostrano la stessa persona con movimenti perfettamente sincronizzati?",
+      "Gli sfondi e le persone visibili in ciascuna angolazione sono coerenti tra loro?",
+      "I dettagli come la cravatta rossa e le posizioni delle mani corrispondono in tutte le inquadrature?"
     ],
-    explanation: "Questo è contenuto completamente autentico. La presenza di multiple angolazioni di ripresa simultanee da fonti indipendenti (diverse emittenti televisive) rende estremamente difficile creare un deepfake convincente, poiché richiederebbe la manipolazione coordinata di tutti i feed video mantenendo coerenza perfetta tra prospettive diverse. Le risposte spontanee a domande imprevedibili con tempi di reazione naturali sono un ulteriore indicatore di autenticità. La complessità di falsificare simultaneamente multiple prospettive dello stesso evento in tempo reale è tecnicamente proibitiva anche per i deepfake più avanzati."
+    explanation: "Questo è contenuto completamente autentico da un evento ufficiale reale. La presenza di quattro angolazioni simultanee da fonti indipendenti rende estremamente difficile creare un deepfake convincente. Gli indicatori chiave includono: perfetta coerenza di movimenti, gesti e timing tra tutte e quattro le prospettive. I dettagli come la cravatta rossa, la posizione delle mani, e le espressioni facciali sono identici in tutte le inquadrature. Le persone sullo sfondo e gli elementi della sala sono visibili in modo coerente da diverse angolazioni. La complessità di falsificare simultaneamente multiple prospettive dello stesso evento mantenendo coerenza perfetta è tecnicamente proibitiva anche per i deepfake più avanzati."
   },
   {
     id: 12,
@@ -194,11 +194,11 @@ const questionBank: QuizQuestion[] = [
     isDeepfake: false,
     difficulty: "hard",
     hints: [
-      "C'è una differenza tra editing fotografico standard e manipolazione strutturale?",
-      "La struttura fondamentale e le proporzioni dell'immagine sono intatte?",
-      "I miglioramenti sono limitati a colore, contrasto e piccole imperfezioni della pelle?"
+      "I miglioramenti sono limitati a colori, luminosità e piccole imperfezioni?",
+      "Le proporzioni del corpo, la forma del viso e le caratteristiche principali sono intatte?",
+      "La texture della pelle, pur ottimizzata, mostra ancora dettagli naturali come rughe e variazioni?"
     ],
-    explanation: "Questo è contenuto autentico con editing fotografico standard e professionale, non un deepfake. È importante distinguere tra l'editing fotografico normale (regolazione di colori, esposizione, rimozione di piccole imperfezioni) e la manipolazione strutturale che caratterizza i deepfake. Questa foto ha subito post-produzione standard che non altera la realtà fondamentale dell'immagine: nessun cambio di identità, nessuna alterazione delle caratteristiche facciali o corporee, nessuna aggiunta o rimozione di elementi importanti. L'editing professionale che migliora la qualità visiva senza distorcere la realtà è una pratica accettata e non costituisce un deepfake o contenuto ingannevole."
+    explanation: "Questo è contenuto autentico con editing fotografico standard e professionale, non un deepfake. È fondamentale distinguere tra l'editing fotografico normale (regolazione di colori, esposizione, rimozione di piccole imperfezioni) e la manipolazione strutturale che caratterizza i deepfake. Questa foto ha subito post-produzione standard che non altera la realtà fondamentale dell'immagine: nessun cambio di identità, nessuna alterazione delle caratteristiche facciali o corporee, nessuna aggiunta o rimozione di elementi importanti. L'editing professionale che migliora la qualità visiva senza distorcere la realtà è una pratica accettata e trasparente, molto diversa dalla creazione di deepfake che inganna intenzionalmente."
   }
 ];
 
