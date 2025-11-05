@@ -31,6 +31,9 @@ const Index = () => {
       return;
     }
 
+    console.log('=== STARTING ANALYSIS ===');
+    console.log('Files:', selectedFiles.length, 'URL:', selectedUrl || 'none');
+    
     setIsAnalyzing(true);
     setResult(null);
 
@@ -40,77 +43,125 @@ const Index = () => {
       let content = '';
 
       if (selectedUrl) {
-        // Analyze from URL
+        console.log('Processing URL:', selectedUrl);
         fileName = selectedUrl;
         
         // Determine type from URL
         if (selectedUrl.match(/\.(jpg|jpeg|png|gif|webp|bmp)$/i)) {
           fileType = 'image/url';
           content = selectedUrl;
+          console.log('Detected as image URL');
         } else if (selectedUrl.match(/\.(mp4|webm|ogg|mov)$/i)) {
           fileType = 'video/url';
           content = selectedUrl;
+          console.log('Detected as video URL');
         } else if (selectedUrl.match(/\.pdf$/i)) {
           fileType = 'application/pdf';
           content = selectedUrl;
+          console.log('Detected as PDF URL');
         } else {
           fileType = 'text/html';
           content = selectedUrl;
+          console.log('Detected as webpage URL');
         }
       } else {
-        // Analyze from file
         const file = selectedFiles[0];
+        console.log('Processing file:', file.name, 'Type:', file.type, 'Size:', file.size);
         fileName = file.name;
         fileType = file.type;
 
-        if (file.type.startsWith('text/')) {
-          content = await file.text();
-        } else if (file.type.startsWith('image/')) {
-          const base64 = await fileToBase64(file);
-          content = base64;
-        } else if (file.type === 'application/pdf') {
-          content = 'PDF file uploaded for analysis';
+        try {
+          if (file.type.startsWith('text/')) {
+            console.log('Reading text file...');
+            content = await file.text();
+            console.log('Text content length:', content.length);
+          } else if (file.type.startsWith('image/')) {
+            console.log('Converting image to base64...');
+            const base64 = await fileToBase64(file);
+            content = base64;
+            console.log('Base64 length:', content.length);
+          } else if (file.type === 'application/pdf') {
+            console.log('PDF file detected');
+            content = 'PDF file uploaded for analysis';
+          } else {
+            throw new Error(`Tipo di file non supportato: ${file.type}`);
+          }
+        } catch (fileError) {
+          console.error('Error processing file:', fileError);
+          throw new Error(`Errore durante la lettura del file: ${fileError instanceof Error ? fileError.message : 'Errore sconosciuto'}`);
         }
       }
 
+      const requestPayload = {
+        fileName: fileName,
+        fileType: fileType,
+        content: content,
+        isUrl: !!selectedUrl,
+      };
+
+      console.log('Preparing request:', {
+        fileName,
+        fileType,
+        contentLength: content.length,
+        isUrl: !!selectedUrl
+      });
+
+      const apiUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/analyze-content`;
+      console.log('Calling edge function:', apiUrl);
+
       // Stream the response
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/analyze-content`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-          },
-          body: JSON.stringify({
-            fileName: fileName,
-            fileType: fileType,
-            content: content,
-            isUrl: !!selectedUrl,
-          }),
-        }
-      );
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        },
+        body: JSON.stringify(requestPayload),
+      });
+
+      console.log('Response status:', response.status, response.statusText);
+      console.log('Response headers:', Object.fromEntries(response.headers.entries()));
 
       if (!response.ok) {
+        console.error('HTTP Error Response:', {
+          status: response.status,
+          statusText: response.statusText,
+          headers: Object.fromEntries(response.headers.entries())
+        });
+        
         let errorMessage = 'Errore durante l\'analisi del file';
         try {
-          const errorData = await response.json();
-          if (errorData.error) {
-            errorMessage = errorData.error;
+          const contentType = response.headers.get('content-type');
+          console.log('Error response content-type:', contentType);
+          
+          if (contentType?.includes('application/json')) {
+            const errorData = await response.json();
+            console.error('Error JSON:', errorData);
+            if (errorData.error) {
+              errorMessage = errorData.error;
+            }
+          } else {
+            const errorText = await response.text();
+            console.error('Error text:', errorText);
+            errorMessage = errorText || `Errore HTTP: ${response.status} ${response.statusText}`;
           }
-        } catch {
+        } catch (parseError) {
+          console.error('Error parsing error response:', parseError);
           errorMessage = `Errore HTTP: ${response.status} ${response.statusText}`;
         }
         throw new Error(errorMessage);
       }
       
       if (!response.body) {
+        console.error('No response body from server');
         throw new Error('Nessuna risposta dal server');
       }
 
+      console.log('Starting to read stream...');
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
       let accumulatedText = '';
+      let chunkCount = 0;
 
       setResult({
         fileName: fileName,
@@ -121,15 +172,24 @@ const Index = () => {
 
       while (true) {
         const { done, value } = await reader.read();
-        if (done) break;
+        if (done) {
+          console.log('Stream complete. Total chunks:', chunkCount);
+          break;
+        }
 
+        chunkCount++;
         const chunk = decoder.decode(value, { stream: true });
+        console.log(`Chunk ${chunkCount}:`, chunk.substring(0, 100) + '...');
+        
         const lines = chunk.split('\n');
 
         for (const line of lines) {
           if (line.startsWith('data: ')) {
             const data = line.slice(6);
-            if (data === '[DONE]') continue;
+            if (data === '[DONE]') {
+              console.log('Received [DONE] marker');
+              continue;
+            }
 
             try {
               const parsed = JSON.parse(data);
@@ -144,22 +204,29 @@ const Index = () => {
                   timestamp: new Date(),
                 });
               }
-            } catch (e) {
-              // Ignore JSON parse errors
+            } catch (parseError) {
+              console.warn('Error parsing SSE data:', data.substring(0, 100), parseError);
             }
           }
         }
       }
 
+      console.log('Analysis complete. Total text length:', accumulatedText.length);
+      
       toast({
         title: "Analisi completata",
         description: "I risultati sono pronti",
       });
     } catch (error) {
-      console.error('Error analyzing file:', error);
+      console.error('=== ANALYSIS ERROR ===');
+      console.error('Error type:', error?.constructor?.name);
+      console.error('Error message:', error instanceof Error ? error.message : 'Unknown');
+      console.error('Error stack:', error instanceof Error ? error.stack : 'No stack');
+      console.error('Full error object:', error);
+      
       toast({
         title: "Errore nell'analisi",
-        description: "Si è verificato un errore durante l'analisi del file",
+        description: error instanceof Error ? error.message : "Si è verificato un errore durante l'analisi del file",
         variant: "destructive",
       });
     } finally {

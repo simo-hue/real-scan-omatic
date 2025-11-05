@@ -7,19 +7,48 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
+  console.log('=== EDGE FUNCTION CALLED ===');
+  console.log('Method:', req.method);
+  console.log('Headers:', Object.fromEntries(req.headers.entries()));
+  
   if (req.method === 'OPTIONS') {
+    console.log('Handling CORS preflight');
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { fileName, fileType, content, isUrl } = await req.json();
-    console.log('Analyzing:', isUrl ? 'URL' : 'File', fileName, 'Type:', fileType);
+    console.log('Reading request body...');
+    let requestBody;
+    try {
+      requestBody = await req.json();
+    } catch (jsonError) {
+      console.error('Failed to parse JSON:', jsonError);
+      throw new Error('Invalid JSON in request body');
+    }
+    
+    const { fileName, fileType, content, isUrl } = requestBody;
+    console.log('Request data:', {
+      fileName,
+      fileType,
+      contentLength: content?.length || 0,
+      isUrl,
+      contentPreview: typeof content === 'string' ? content.substring(0, 100) : 'non-string'
+    });
 
+    console.log('Checking LOVABLE_API_KEY...');
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     if (!LOVABLE_API_KEY) {
-      console.error('LOVABLE_API_KEY is not configured');
+      console.error('LOVABLE_API_KEY is not configured in environment');
       throw new Error('LOVABLE_API_KEY is not configured');
     }
+    console.log('LOVABLE_API_KEY found:', LOVABLE_API_KEY.substring(0, 10) + '...');
+
+    if (!fileName || !fileType) {
+      console.error('Missing required fields:', { fileName, fileType });
+      throw new Error('fileName and fileType are required');
+    }
+
+    console.log('Building AI messages...');
 
     let messages: any[] = [];
 
@@ -134,7 +163,8 @@ serve(async (req) => {
       throw new Error(`Errore AI API: ${response.status} - ${errorText}`);
     }
 
-    console.log('Streaming AI response started successfully');
+    console.log('AI streaming started successfully');
+    console.log('Returning stream to client...');
 
     // Return the streaming response directly to the client
     return new Response(response.body, {
@@ -146,10 +176,23 @@ serve(async (req) => {
       },
     });
   } catch (error) {
-    console.error('Error in analyze-content function:', error);
+    console.error('=== EDGE FUNCTION ERROR ===');
+    console.error('Error type:', error?.constructor?.name);
+    console.error('Error message:', error instanceof Error ? error.message : 'Unknown');
+    console.error('Error stack:', error instanceof Error ? error.stack : 'No stack');
+    console.error('Full error object:', error);
+    
     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+    const errorResponse = { 
+      error: errorMessage,
+      timestamp: new Date().toISOString(),
+      details: error instanceof Error ? error.stack : undefined
+    };
+    
+    console.log('Sending error response:', errorResponse);
+    
     return new Response(
-      JSON.stringify({ error: errorMessage }),
+      JSON.stringify(errorResponse),
       { 
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
