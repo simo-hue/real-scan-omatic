@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
 import { z } from 'zod';
 // @ts-ignore - heic2any doesn't have types
 import heic2any from 'heic2any';
@@ -34,6 +35,8 @@ export const FileUpload = ({ onFilesSelected, onUrlSubmit }: FileUploadProps) =>
   const [acceptedUrl, setAcceptedUrl] = useState<string>('');
   const [isValidatingUrl, setIsValidatingUrl] = useState(false);
   const [isConverting, setIsConverting] = useState(false);
+  const [conversionProgress, setConversionProgress] = useState(0);
+  const [currentConvertingFile, setCurrentConvertingFile] = useState<string>('');
   const { toast } = useToast();
 
   // Cleanup preview URLs when component unmounts or files change
@@ -146,9 +149,12 @@ export const FileUpload = ({ onFilesSelected, onUrlSubmit }: FileUploadProps) =>
 
   const handleFiles = async (files: File[]) => {
     setIsConverting(true);
+    setConversionProgress(0);
     
     try {
       const processedFiles: File[] = [];
+      const totalFiles = files.length;
+      let processedCount = 0;
       
       for (const file of files) {
         // Check if file is HEIC/HEIF and convert it
@@ -157,18 +163,17 @@ export const FileUpload = ({ onFilesSelected, onUrlSubmit }: FileUploadProps) =>
                       file.name.match(/\.(heic|heif)$/i);
         
         if (isHeic) {
-          toast({
-            title: "Conversione in corso...",
-            description: `Conversione di ${file.name} in JPG`,
-          });
+          setCurrentConvertingFile(file.name);
+          setConversionProgress((processedCount / totalFiles) * 100);
           
           try {
             const convertedFile = await convertHeicToJpg(file);
             processedFiles.push(convertedFile);
             
             toast({
-              title: "Conversione completata",
-              description: `${file.name} convertito in JPG`,
+              title: "✓ Conversione completata",
+              description: `${file.name} → JPG`,
+              duration: 2000,
             });
           } catch (conversionError) {
             toast({
@@ -197,6 +202,9 @@ export const FileUpload = ({ onFilesSelected, onUrlSubmit }: FileUploadProps) =>
           
           processedFiles.push(file);
         }
+        
+        processedCount++;
+        setConversionProgress((processedCount / totalFiles) * 100);
       }
 
       if (processedFiles.length > 0) {
@@ -237,6 +245,8 @@ export const FileUpload = ({ onFilesSelected, onUrlSubmit }: FileUploadProps) =>
       }
     } finally {
       setIsConverting(false);
+      setConversionProgress(0);
+      setCurrentConvertingFile('');
     }
   };
 
@@ -370,6 +380,20 @@ export const FileUpload = ({ onFilesSelected, onUrlSubmit }: FileUploadProps) =>
                 <span>JPG • PNG • WEBP • HEIC • Video • PDF</span>
                 <div className="h-px w-8 bg-gradient-to-l from-transparent to-primary/50" />
               </div>
+              
+              {isConverting && (
+                <div className="mt-6 space-y-3 px-8">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground font-medium">
+                      {currentConvertingFile ? `Conversione: ${currentConvertingFile}` : 'Elaborazione...'}
+                    </span>
+                    <span className="text-primary font-semibold">
+                      {Math.round(conversionProgress)}%
+                    </span>
+                  </div>
+                  <Progress value={conversionProgress} className="h-2" />
+                </div>
+              )}
             </div>
           </div>
 
