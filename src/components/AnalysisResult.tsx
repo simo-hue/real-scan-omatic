@@ -3,6 +3,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { FFTAnalysisResult } from '@/utils/fftAnalyzer';
+import { ELAAnalysisResult } from '@/utils/elaAnalyzer';
 
 interface AnalysisResultProps {
   result: {
@@ -18,6 +19,7 @@ interface AnalysisResultProps {
       suspiciousEdits?: string[];
     };
     fftAnalysis?: FFTAnalysisResult;
+    elaAnalysis?: ELAAnalysisResult;
     evaluation: {
       score: number;
       verdict: string;
@@ -201,6 +203,47 @@ export const AnalysisResult = ({ result, isLoading }: AnalysisResultProps) => {
                 <p className="text-xs text-muted-foreground mb-2">Dettagli Tecnici</p>
                 <p className="text-xs text-foreground leading-relaxed">{result.fftAnalysis.details}</p>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* ELA Analysis */}
+        {result.elaAnalysis && (
+          <div className="p-5 glass-effect rounded-xl border border-border/50 hover:border-primary/30 transition-all duration-300">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="h-4 w-1 bg-gradient-to-b from-orange-500 to-red-500 rounded-full" />
+              <p className="text-xs font-semibold text-orange-500 uppercase tracking-wide">
+                Error Level Analysis (ELA)
+              </p>
+            </div>
+            <div className="ml-3 space-y-4">
+              <div className="relative rounded-lg overflow-hidden border border-border/50">
+                <img 
+                  src={result.elaAnalysis.heatmapDataUrl} 
+                  alt="ELA Heatmap"
+                  className="w-full h-auto"
+                />
+                <div className="absolute top-2 right-2 bg-black/70 px-3 py-1 rounded-lg">
+                  <p className="text-xs text-white font-mono">Score: {result.elaAnalysis.overallScore}/100</p>
+                </div>
+              </div>
+              <div className="p-3 bg-muted/30 rounded-lg">
+                <p className="text-xs text-foreground leading-relaxed">{result.elaAnalysis.details}</p>
+              </div>
+              {result.elaAnalysis.suspiciousZones.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-xs font-semibold text-muted-foreground">Zone Sospette ({result.elaAnalysis.suspiciousZones.length}):</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    {result.elaAnalysis.suspiciousZones.slice(0, 4).map((zone, idx) => (
+                      <div key={idx} className="p-2 bg-red-500/10 rounded border border-red-500/20">
+                        <p className="text-xs text-foreground">
+                          Zona {idx + 1}: ({zone.x}, {zone.y}) - Intensità: {(zone.intensity * 100).toFixed(0)}%
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}

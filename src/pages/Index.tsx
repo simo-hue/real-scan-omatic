@@ -8,6 +8,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { Sparkles, ArrowRight, Zap } from 'lucide-react';
 import { extractExifData } from '@/utils/exifExtractor';
 import { analyzeImageFFT, FFTAnalysisResult } from '@/utils/fftAnalyzer';
+import { analyzeImageELA, ELAAnalysisResult } from '@/utils/elaAnalyzer';
 
 interface AnalysisResultData {
   fileName: string;
@@ -22,6 +23,7 @@ interface AnalysisResultData {
     suspiciousEdits?: string[];
   };
   fftAnalysis?: FFTAnalysisResult;
+  elaAnalysis?: ELAAnalysisResult;
   evaluation: {
     score: number;
     verdict: string;
@@ -130,15 +132,18 @@ const Index = () => {
         isUrl: !!selectedUrl,
       };
 
-      // Perform FFT analysis for images after creating the payload
+      // Perform FFT and ELA analysis for images
       if (fileType.startsWith('image/') && !selectedUrl && selectedFiles[0]) {
         console.log('Performing FFT analysis...');
         const fftResult = await analyzeImageFFT(selectedFiles[0]);
         console.log('FFT analysis:', fftResult);
         
-        if (fftResult) {
-          requestPayload.fftAnalysis = fftResult;
-        }
+        console.log('Performing ELA analysis...');
+        const elaResult = await analyzeImageELA(selectedFiles[0]);
+        console.log('ELA analysis:', elaResult);
+        
+        if (fftResult) requestPayload.fftAnalysis = fftResult;
+        if (elaResult) requestPayload.elaAnalysis = elaResult;
       }
 
       console.log('Preparing request:', {
@@ -254,6 +259,7 @@ const Index = () => {
           description: parsedResult.description || '',
           exifData,
           fftAnalysis: (requestPayload as any).fftAnalysis,
+          elaAnalysis: (requestPayload as any).elaAnalysis,
           evaluation: {
             score: parsedResult.evaluation?.score || 0,
             verdict: parsedResult.evaluation?.verdict || '',
