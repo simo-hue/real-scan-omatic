@@ -43,7 +43,11 @@ export const FileUpload = ({ onFilesSelected, onUrlSubmit }: FileUploadProps) =>
 
   const handleFiles = (files: File[]) => {
     const validFiles = files.filter(file => {
-      const isValid = file.type.startsWith('image/') || 
+      // Support all image formats including HEIC, BMP, TIFF, SVG, WEBP
+      const isImage = file.type.startsWith('image/') || 
+                      file.name.match(/\.(heic|heif|bmp|tiff|tif|svg|webp|avif)$/i);
+      
+      const isValid = isImage || 
                      file.type.startsWith('video/') || 
                      file.type.startsWith('text/') ||
                      file.type === 'application/pdf';
@@ -51,7 +55,7 @@ export const FileUpload = ({ onFilesSelected, onUrlSubmit }: FileUploadProps) =>
       if (!isValid) {
         toast({
           title: "Tipo di file non supportato",
-          description: `${file.name} non è un file valido`,
+          description: `${file.name} non è supportato. Usa immagini, video, testo o PDF`,
           variant: "destructive",
         });
       }
@@ -158,7 +162,7 @@ export const FileUpload = ({ onFilesSelected, onUrlSubmit }: FileUploadProps) =>
               type="file"
               multiple
               onChange={handleChange}
-              accept="image/*,video/*,text/*,.pdf"
+              accept="image/*,.heic,.heif,.bmp,.tiff,.tif,.svg,.webp,.avif,video/*,text/*,.pdf"
               className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
             />
             

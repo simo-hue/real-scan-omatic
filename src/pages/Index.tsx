@@ -80,20 +80,19 @@ const Index = () => {
             console.log('Reading text file...');
             content = await file.text();
             console.log('Text content length:', content.length);
-          } else if (file.type.startsWith('image/')) {
-            console.log('Converting image to base64...');
+          } else if (file.type.startsWith('image/') || file.type === 'application/pdf') {
+            // Handle images and PDFs as base64
+            console.log('Converting file to base64...');
             const base64 = await fileToBase64(file);
             content = base64;
             console.log('Base64 length:', content.length);
-          } else if (file.type === 'application/pdf') {
-            console.log('PDF file detected');
-            content = 'PDF file uploaded for analysis';
           } else {
             throw new Error(`Tipo di file non supportato: ${file.type}`);
           }
         } catch (fileError) {
           console.error('Error processing file:', fileError);
-          throw new Error(`Errore durante la lettura del file: ${fileError instanceof Error ? fileError.message : 'Errore sconosciuto'}`);
+          const errorMessage = fileError instanceof Error ? fileError.message : 'Errore durante la lettura del file';
+          throw new Error(errorMessage);
         }
       }
 
@@ -262,9 +261,28 @@ const Index = () => {
   const fileToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = error => reject(error);
+      
+      reader.onload = () => {
+        if (reader.result) {
+          resolve(reader.result as string);
+        } else {
+          reject(new Error('Impossibile leggere il file'));
+        }
+      };
+      
+      reader.onerror = () => {
+        reject(new Error(`Errore nella lettura del file: ${reader.error?.message || 'Errore sconosciuto'}`));
+      };
+      
+      reader.onabort = () => {
+        reject(new Error('Lettura del file annullata'));
+      };
+      
+      try {
+        reader.readAsDataURL(file);
+      } catch (error) {
+        reject(new Error(`Impossibile avviare la lettura: ${error instanceof Error ? error.message : 'Errore sconosciuto'}`));
+      }
     });
   };
 
