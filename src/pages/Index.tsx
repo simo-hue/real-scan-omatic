@@ -6,15 +6,31 @@ import { DeepfakeEducation } from '@/components/DeepfakeEducation';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast';
 import { Sparkles, ArrowRight, Zap } from 'lucide-react';
+import { extractExifData } from '@/utils/exifExtractor';
 
 interface AnalysisResultData {
   fileName: string;
   fileType: string;
   description: string;
+  exifData?: {
+    camera?: string;
+    software?: string;
+    dateTime?: string;
+    gps?: string;
+    modified?: boolean;
+    suspiciousEdits?: string[];
+  };
   evaluation: {
-    score: number; // 0-100
+    score: number;
     verdict: string;
     reasoning: string;
+    breakdown: {
+      technicalAuthenticity: { score: number; details: string };
+      contentCredibility: { score: number; details: string };
+      manipulationRisk: { score: number; details: string };
+      sourceReliability: { score: number; details: string };
+    };
+    contextAnalysis?: string;
   };
   timestamp: Date;
 }
@@ -46,6 +62,7 @@ const Index = () => {
       let fileName = '';
       let fileType = '';
       let content = '';
+      let exifData;
 
       if (selectedUrl) {
         console.log('Processing URL:', selectedUrl);
@@ -86,6 +103,13 @@ const Index = () => {
             const base64 = await fileToBase64(file);
             content = base64;
             console.log('Base64 length:', content.length);
+
+            // Extract EXIF data for images
+            if (file.type.startsWith('image/')) {
+              console.log('Extracting EXIF data...');
+              exifData = await extractExifData(file);
+              console.log('EXIF data:', exifData);
+            }
           } else {
             throw new Error(`Tipo di file non supportato: ${file.type}`);
           }
@@ -214,10 +238,18 @@ const Index = () => {
           fileName,
           fileType,
           description: parsedResult.description || '',
+          exifData,
           evaluation: {
             score: parsedResult.evaluation?.score || 0,
             verdict: parsedResult.evaluation?.verdict || '',
-            reasoning: parsedResult.evaluation?.reasoning || ''
+            reasoning: parsedResult.evaluation?.reasoning || '',
+            breakdown: parsedResult.evaluation?.breakdown || {
+              technicalAuthenticity: { score: 0, details: 'Non disponibile' },
+              contentCredibility: { score: 0, details: 'Non disponibile' },
+              manipulationRisk: { score: 0, details: 'Non disponibile' },
+              sourceReliability: { score: 0, details: 'Non disponibile' }
+            },
+            contextAnalysis: parsedResult.evaluation?.contextAnalysis
           },
           timestamp: new Date()
         });
@@ -228,10 +260,17 @@ const Index = () => {
           fileName,
           fileType,
           description: accumulatedText,
+          exifData,
           evaluation: {
             score: 0,
             verdict: 'Analisi non strutturata',
-            reasoning: 'Impossibile parsare la risposta in formato strutturato'
+            reasoning: 'Impossibile parsare la risposta in formato strutturato',
+            breakdown: {
+              technicalAuthenticity: { score: 0, details: 'Non disponibile' },
+              contentCredibility: { score: 0, details: 'Non disponibile' },
+              manipulationRisk: { score: 0, details: 'Non disponibile' },
+              sourceReliability: { score: 0, details: 'Non disponibile' }
+            }
           },
           timestamp: new Date()
         });

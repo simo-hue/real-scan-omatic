@@ -9,7 +9,6 @@ const corsHeaders = {
 serve(async (req) => {
   console.log('=== EDGE FUNCTION CALLED ===');
   console.log('Method:', req.method);
-  console.log('Headers:', Object.fromEntries(req.headers.entries()));
   
   if (req.method === 'OPTIONS') {
     console.log('Handling CORS preflight');
@@ -18,42 +17,29 @@ serve(async (req) => {
 
   try {
     console.log('Reading request body...');
-    let requestBody;
-    try {
-      requestBody = await req.json();
-    } catch (jsonError) {
-      console.error('Failed to parse JSON:', jsonError);
-      throw new Error('Invalid JSON in request body');
-    }
-    
+    const requestBody = await req.json();
     const { fileName, fileType, content, isUrl } = requestBody;
+    
     console.log('Request data:', {
       fileName,
       fileType,
       contentLength: content?.length || 0,
-      isUrl,
-      contentPreview: typeof content === 'string' ? content.substring(0, 100) : 'non-string'
+      isUrl
     });
 
-    console.log('Checking LOVABLE_API_KEY...');
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     if (!LOVABLE_API_KEY) {
-      console.error('LOVABLE_API_KEY is not configured in environment');
       throw new Error('LOVABLE_API_KEY is not configured');
     }
-    console.log('LOVABLE_API_KEY found:', LOVABLE_API_KEY.substring(0, 10) + '...');
 
     if (!fileName || !fileType) {
-      console.error('Missing required fields:', { fileName, fileType });
       throw new Error('fileName and fileType are required');
     }
-
-    console.log('Building AI messages...');
 
     let messages: any[] = [];
 
     if (fileType.startsWith('image/') || fileType === 'image/url') {
-      console.log('Processing image', isUrl ? 'from URL' : 'file');
+      console.log('Processing image analysis with enhanced prompts');
       
       const imageContent = isUrl ? content : content;
       
@@ -63,19 +49,58 @@ serve(async (req) => {
           content: [
             {
               type: 'text',
-              text: `Analizza questa immagine e fornisci una risposta ESCLUSIVAMENTE in formato JSON valido.
+              text: `Sei un esperto forense digitale. Analizza questa immagine per identificare deepfakes e manipolazioni.
 
-Struttura richiesta:
+ANALISI TECNICA RICHIESTA:
+- Artefatti di compressione e pattern anomali
+- Coerenza illuminazione e ombre
+- Proporzioni anatomiche/geometriche
+- Texture pelle/capelli (lisciatura artificiale?)
+- Bordi e transizioni (clonazione/sfocature)
+- Pattern rumore digitale
+- Qualità inconsistente
+
+ANALISI CONTENUTO:
+- Coerenza contestuale
+- Credibilità scena
+- Plausibilità fisica
+
+INDICATORI MANIPOLAZIONE:
+- AI generation (GAN, diffusion)
+- Face swap artifacts
+- Clonazione oggetti
+- Alterazioni background
+
+Rispondi in formato JSON:
 {
-  "description": "MASSIMO 2 FRASI BREVI (max 150 caratteri totali). Descrivi solo: cosa mostra l'immagine e il contesto principale.",
+  "description": "Descrizione concisa (max 200 caratteri)",
   "evaluation": {
-    "score": <numero intero da 0 a 100, dove 0 = sicuramente AI-generato/deepfake, 100 = sicuramente reale/autentico>,
-    "verdict": "Probabilmente reale" oppure "Probabilmente AI-generato" oppure "Incerto",
-    "reasoning": "Analisi tecnica dettagliata considerando: qualità generale, presenza di artefatti digitali, incongruenze di illuminazione e ombre, proporzioni e geometria, texture della pelle (se applicabile), naturalezza dello sfondo, coerenza generale dell'immagine. Specifica eventuali segnali di manipolazione trovati."
+    "score": <0-100, dove 100=autentico, 0=falso>,
+    "verdict": "<Autentico|Probabilmente Autentico|Sospetto|Probabilmente Manipolato|Manipolato>",
+    "reasoning": "Spiegazione della valutazione (2-3 frasi)",
+    "breakdown": {
+      "technicalAuthenticity": {
+        "score": <0-100>,
+        "details": "Valutazione tecnica: artefatti, illuminazione, texture"
+      },
+      "contentCredibility": {
+        "score": <0-100>,
+        "details": "Credibilità: plausibilità scena, coerenza fisica"
+      },
+      "manipulationRisk": {
+        "score": <0-100, dove 100=alto rischio>,
+        "details": "Indicatori manipolazione specifici"
+      },
+      "sourceReliability": {
+        "score": <0-100>,
+        "details": "Qualità e professionalità immagine"
+      }
+    },
+    "contextAnalysis": "Analisi contestuale: elementi temporali/geografici/culturali"
   }
 }
 
-CRITICO: La description deve essere BREVISSIMA (max 2 frasi, max 150 caratteri). Rispondi SOLO con JSON valido.`,
+IMPORTANTE: Rispondi SOLO con JSON valido.`,
             },
             {
               type: 'image_url',
@@ -87,88 +112,183 @@ CRITICO: La description deve essere BREVISSIMA (max 2 frasi, max 150 caratteri).
         },
       ];
     } else if (fileType === 'text/html') {
-      console.log('Processing webpage from URL');
+      console.log('Processing webpage with enhanced prompts');
       
-      try {
-        const webResponse = await fetch(content);
-        if (!webResponse.ok) {
-          throw new Error(`Failed to fetch URL: ${webResponse.status}`);
-        }
-        const htmlContent = await webResponse.text();
-        
-        messages = [
-          {
-            role: 'user',
-            content: `Analizza questa pagina web e fornisci una risposta ESCLUSIVAMENTE in formato JSON valido.
+      const webResponse = await fetch(content);
+      if (!webResponse.ok) {
+        throw new Error(`Failed to fetch URL: ${webResponse.status}`);
+      }
+      const htmlContent = await webResponse.text();
+      
+      messages = [
+        {
+          role: 'user',
+          content: `Sei un esperto fact-checking. Analizza questa pagina web per credibilità e affidabilità.
 
-Struttura richiesta:
-{
-  "description": "MASSIMO 2 FRASI BREVI (max 150 caratteri totali). Descrivi solo: argomento principale e tipo di contenuto.",
-  "evaluation": {
-    "score": <numero intero da 0 a 100, dove 0 = disinformazione certa, 100 = fonte completamente affidabile>,
-    "verdict": "Affidabile" oppure "Sospetto" oppure "Disinformazione",
-    "reasoning": "Analisi critica dettagliata considerando: credibilità e reputazione della fonte, presenza di bias evidenti, verifica dei fatti presentati, qualità del linguaggio utilizzato, presenza di clickbait o sensazionalismo, riferimenti e citazioni, coerenza delle informazioni"
-  }
-}
+ANALISI FONTE:
+- Reputazione dominio
+- Certificazioni e trasparenza
+- Fact-checking e fonti
+- Qualità tecnica
+
+ANALISI CONTENUTO:
+- Accuratezza fattuale
+- Presenza bias/sensazionalismo
+- Linguaggio emotivo vs oggettivo
+- Prove e documentazione
+
+INDICATORI MANIPOLAZIONE:
+- Click-bait/titoli fuorvianti
+- Manipolazione emotiva
+- Omissione contesto
+- Fonti dubbie
 
 URL: ${fileName}
 Contenuto: ${htmlContent.substring(0, 8000)}
 
-CRITICO: La description deve essere BREVISSIMA (max 2 frasi, max 150 caratteri). Rispondi SOLO con JSON valido.`,
-          },
-        ];
-      } catch (fetchError) {
-        console.error('Error fetching URL:', fetchError);
-        throw new Error(`Impossibile accedere all'URL: ${fetchError instanceof Error ? fetchError.message : 'Errore sconosciuto'}`);
+Rispondi in JSON:
+{
+  "description": "Descrizione (max 200 caratteri)",
+  "evaluation": {
+    "score": <0-100, dove 100=massima affidabilità>,
+    "verdict": "<Affidabile|Probabilmente Affidabile|Dubbio|Probabilmente Non Affidabile|Non Affidabile>",
+    "reasoning": "Spiegazione (2-3 frasi)",
+    "breakdown": {
+      "technicalAuthenticity": {
+        "score": <0-100>,
+        "details": "Valutazione tecnica sito"
+      },
+      "contentCredibility": {
+        "score": <0-100>,
+        "details": "Accuratezza fattuale, fonti"
+      },
+      "manipulationRisk": {
+        "score": <0-100>,
+        "details": "Bias, sensazionalismo"
+      },
+      "sourceReliability": {
+        "score": <0-100>,
+        "details": "Reputazione autore/editore"
       }
+    },
+    "contextAnalysis": "Confronto con altre fonti, pattern disinformazione"
+  }
+}
+
+IMPORTANTE: Rispondi SOLO con JSON valido.`,
+        },
+      ];
     } else if (fileType.startsWith('text/') || fileType === 'application/pdf') {
-      console.log('Processing text/pdf file');
+      console.log('Processing text/pdf with enhanced prompts');
+      
       messages = [
         {
           role: 'user',
-          content: `Analizza questo testo e fornisci una risposta ESCLUSIVAMENTE in formato JSON valido.
+          content: `Sei un esperto fact-checking. Analizza questo testo per credibilità.
 
-Struttura richiesta:
-{
-  "description": "MASSIMO 2 FRASI BREVI (max 150 caratteri totali). Descrivi solo: tema principale del testo.",
-  "evaluation": {
-    "score": <numero intero da 0 a 100, dove 0 = sicuramente falso/disinformazione, 100 = completamente accurato e verificabile>,
-    "verdict": "Accurato" oppure "Sospetto" oppure "Disinformazione",
-    "reasoning": "Analisi dettagliata considerando: verifica dei fatti presentati, logica e coerenza dell'argomentazione, presenza e qualità delle fonti citate, bias evidenti, possibili segnali di contenuto AI-generato, tono e stile di scrittura, pubblico target e intento"
-  }
-}
+ANALISI TECNICA:
+- Accuratezza fattuale
+- Coerenza logica
+- Fonti verificabili
+- Qualità scrittura
+
+ANALISI CONTENUTO:
+- Claims verificabili vs opinioni
+- Completezza
+- Omissioni critiche
+
+INDICATORI MANIPOLAZIONE:
+- Bias evidente
+- Linguaggio emotivo
+- Generalizzazioni
+- Fallacie logiche
 
 Testo: ${content.substring(0, 4000)}
 
-CRITICO: La description deve essere BREVISSIMA (max 2 frasi, max 150 caratteri). Rispondi SOLO con JSON valido.`,
-        },
-      ];
-    } else if (fileType.startsWith('video/') || fileType === 'video/url') {
-      console.log('Processing video', isUrl ? 'URL' : 'file');
-      const videoRef = isUrl ? content : fileName;
-      messages = [
-        {
-          role: 'user',
-          content: `Fornisci un'analisi per questo video in formato JSON valido.
-
-Struttura richiesta:
+Rispondi in JSON:
 {
-  "description": "MASSIMO 2 FRASI BREVI (max 150 caratteri totali). Descrivi solo: tipo di video basato su URL/nome file.",
+  "description": "Descrizione (max 200 caratteri)",
   "evaluation": {
-    "score": <numero intero da 0 a 100, dove 0 = molto sospetto/deepfake probabile, 100 = probabilmente autentico>,
-    "verdict": "Da verificare manualmente",
-    "reasoning": "Guida dettagliata all'analisi manuale del video. Elenca i segnali specifici da cercare: sincronizzazione labiale, movimenti oculari e battiti di ciglia, coerenza dell'illuminazione frame-by-frame, artefatti digitali ai bordi del viso, texture e naturalezza della pelle, microespressioni facciali, transizioni anomale, qualità video inconsistente, elementi specifici da controllare frame-by-frame"
+    "score": <0-100, dove 100=massima credibilità>,
+    "verdict": "<Credibile|Probabilmente Credibile|Dubbio|Probabilmente Non Credibile|Non Credibile>",
+    "reasoning": "Spiegazione (2-3 frasi)",
+    "breakdown": {
+      "technicalAuthenticity": {
+        "score": <0-100>,
+        "details": "Accuratezza fattuale, coerenza"
+      },
+      "contentCredibility": {
+        "score": <0-100>,
+        "details": "Verificabilità claims, fonti"
+      },
+      "manipulationRisk": {
+        "score": <0-100>,
+        "details": "Bias, linguaggio emotivo"
+      },
+      "sourceReliability": {
+        "score": <0-100>,
+        "details": "Trasparenza, consenso esperto"
+      }
+    },
+    "contextAnalysis": "Confronto con altre fonti"
   }
 }
 
+IMPORTANTE: Rispondi SOLO con JSON valido.`,
+        },
+      ];
+    } else if (fileType.startsWith('video/') || fileType === 'video/url') {
+      console.log('Processing video with enhanced guidance');
+      const videoRef = isUrl ? content : fileName;
+      
+      messages = [
+        {
+          role: 'user',
+          content: `Sei un esperto deepfake video detection. Fornisci guida per analisi manuale.
+
+INDICATORI CRITICI:
+- Inconsistenze facciali
+- Sincronizzazione audio-video
+- Anomalie illuminazione
+- Artefatti boundary viso
+- Pattern blinking
+- Discontinuità background
+
 Video: ${videoRef}
 
-Nota: L'analisi video completa richiede visione diretta. Fornisci una guida per l'analisi manuale dell'utente.
-CRITICO: La description deve essere BREVISSIMA (max 2 frasi, max 150 caratteri). Rispondi SOLO con JSON valido.`,
+Rispondi in JSON:
+{
+  "description": "File video - richiede analisi manuale (max 200 caratteri)",
+  "evaluation": {
+    "score": 50,
+    "verdict": "Da Verificare Manualmente",
+    "reasoning": "I video richiedono analisi frame-by-frame specializzata. Verifica sincronizzazione audio-video, coerenza facciale, metadata.",
+    "breakdown": {
+      "technicalAuthenticity": {
+        "score": 50,
+        "details": "Impossibile verificare senza analisi frame-by-frame"
+      },
+      "contentCredibility": {
+        "score": 50,
+        "details": "Richiede review manuale"
+      },
+      "manipulationRisk": {
+        "score": 50,
+        "details": "Video soggetti a deepfake. Verifica manuale necessaria"
+      },
+      "sourceReliability": {
+        "score": 50,
+        "details": "Verifica metadata e origine"
+      }
+    },
+    "contextAnalysis": "Verifica cross-reference, confronta con originali"
+  }
+}
+
+IMPORTANTE: Rispondi SOLO con JSON valido.`,
         },
       ];
     } else {
-      console.error('Unsupported file type:', fileType);
       throw new Error(`Tipo di file non supportato: ${fileType}`);
     }
 
@@ -202,9 +322,7 @@ CRITICO: La description deve essere BREVISSIMA (max 2 frasi, max 150 caratteri).
     }
 
     console.log('AI streaming started successfully');
-    console.log('Returning stream to client...');
 
-    // Return the streaming response directly to the client
     return new Response(response.body, {
       headers: {
         ...corsHeaders,
@@ -215,22 +333,12 @@ CRITICO: La description deve essere BREVISSIMA (max 2 frasi, max 150 caratteri).
     });
   } catch (error) {
     console.error('=== EDGE FUNCTION ERROR ===');
-    console.error('Error type:', error?.constructor?.name);
-    console.error('Error message:', error instanceof Error ? error.message : 'Unknown');
-    console.error('Error stack:', error instanceof Error ? error.stack : 'No stack');
-    console.error('Full error object:', error);
+    console.error('Error:', error);
     
     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-    const errorResponse = { 
-      error: errorMessage,
-      timestamp: new Date().toISOString(),
-      details: error instanceof Error ? error.stack : undefined
-    };
-    
-    console.log('Sending error response:', errorResponse);
     
     return new Response(
-      JSON.stringify(errorResponse),
+      JSON.stringify({ error: errorMessage }),
       { 
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
