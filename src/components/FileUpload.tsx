@@ -1,9 +1,10 @@
 import { useCallback, useState } from 'react';
-import { Upload, X, FileText, Image as ImageIcon, Video, Link as LinkIcon } from 'lucide-react';
+import { Upload, X, FileText, Image as ImageIcon, Video, Link as LinkIcon, CheckCircle2 } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
 import { z } from 'zod';
 
 const urlSchema = z.string().url({ message: "URL non valido" }).max(2048, { message: "URL troppo lungo" });
@@ -17,6 +18,7 @@ export const FileUpload = ({ onFilesSelected, onUrlSubmit }: FileUploadProps) =>
   const [dragActive, setDragActive] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [urlInput, setUrlInput] = useState('');
+  const [acceptedUrl, setAcceptedUrl] = useState<string>('');
   const [isValidatingUrl, setIsValidatingUrl] = useState(false);
   const { toast } = useToast();
 
@@ -97,10 +99,11 @@ export const FileUpload = ({ onFilesSelected, onUrlSubmit }: FileUploadProps) =>
     setIsValidatingUrl(true);
     try {
       onUrlSubmit(trimmedUrl);
+      setAcceptedUrl(trimmedUrl);
       setUrlInput('');
       toast({
         title: "URL accettato",
-        description: "Avvia l'analisi per processare il contenuto",
+        description: "URL pronto per l'analisi",
       });
     } catch (error) {
       toast({
@@ -111,6 +114,18 @@ export const FileUpload = ({ onFilesSelected, onUrlSubmit }: FileUploadProps) =>
     } finally {
       setIsValidatingUrl(false);
     }
+  };
+
+  const removeUrl = () => {
+    setAcceptedUrl('');
+    onUrlSubmit('');
+  };
+
+  const getUrlType = (url: string) => {
+    if (url.match(/\.(jpg|jpeg|png|gif|webp|bmp)$/i)) return 'Immagine';
+    if (url.match(/\.(mp4|webm|ogg|mov)$/i)) return 'Video';
+    if (url.match(/\.pdf$/i)) return 'PDF';
+    return 'Pagina Web';
   };
 
   return (
@@ -232,7 +247,7 @@ export const FileUpload = ({ onFilesSelected, onUrlSubmit }: FileUploadProps) =>
                   onChange={(e) => setUrlInput(e.target.value)}
                   placeholder="https://esempio.com/immagine.jpg"
                   className="glass-effect border-primary/30 focus:border-primary text-foreground"
-                  disabled={isValidatingUrl}
+                  disabled={isValidatingUrl || !!acceptedUrl}
                 />
                 <div className="text-xs text-muted-foreground text-center">
                   Supporta link diretti a immagini, video, pagine web e PDF
@@ -241,7 +256,7 @@ export const FileUpload = ({ onFilesSelected, onUrlSubmit }: FileUploadProps) =>
 
               <Button
                 type="submit"
-                disabled={!urlInput.trim() || isValidatingUrl}
+                disabled={!urlInput.trim() || isValidatingUrl || !!acceptedUrl}
                 className="w-full bg-gradient-to-r from-accent-cyan via-accent-purple to-primary hover:opacity-90 transition-all"
               >
                 {isValidatingUrl ? (
@@ -258,6 +273,40 @@ export const FileUpload = ({ onFilesSelected, onUrlSubmit }: FileUploadProps) =>
               </Button>
             </div>
           </form>
+
+          {acceptedUrl && (
+            <div className="space-y-3">
+              <div className="text-sm font-semibold text-foreground flex items-center gap-2">
+                <div className="h-5 w-1 bg-gradient-to-b from-accent-cyan to-accent-purple rounded-full" />
+                URL accettato
+              </div>
+              <div className="flex items-center gap-3 p-4 glass-effect rounded-xl border-2 border-accent-cyan/50 hover:border-accent-cyan transition-all duration-300 group bg-accent-cyan/5 animate-in fade-in slide-in-from-bottom-3 duration-500">
+                <div className="p-2 bg-accent-cyan/20 rounded-lg text-accent-cyan animate-pulse-glow">
+                  <CheckCircle2 className="h-5 w-5" />
+                </div>
+                <div className="flex-1 min-w-0 space-y-1">
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm font-medium text-foreground truncate">
+                      {acceptedUrl}
+                    </p>
+                    <Badge className="bg-accent-cyan/20 text-accent-cyan border-accent-cyan/30 text-xs">
+                      {getUrlType(acceptedUrl)}
+                    </Badge>
+                  </div>
+                  <p className="text-xs text-accent-cyan/80 font-medium flex items-center gap-1">
+                    <CheckCircle2 className="h-3 w-3" />
+                    Pronto per l'analisi
+                  </p>
+                </div>
+                <button
+                  onClick={removeUrl}
+                  className="p-2 hover:bg-destructive/10 rounded-lg transition-all duration-200 opacity-0 group-hover:opacity-100"
+                >
+                  <X className="h-4 w-4 text-destructive" />
+                </button>
+              </div>
+            </div>
+          )}
         </TabsContent>
       </Tabs>
     </div>
