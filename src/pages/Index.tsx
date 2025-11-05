@@ -16,15 +16,16 @@ interface AnalysisResultData {
 
 const Index = () => {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [selectedUrl, setSelectedUrl] = useState<string>('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [result, setResult] = useState<AnalysisResultData | null>(null);
   const { toast } = useToast();
 
   const analyzeFiles = async () => {
-    if (selectedFiles.length === 0) {
+    if (selectedFiles.length === 0 && !selectedUrl) {
       toast({
-        title: "Nessun file selezionato",
-        description: "Seleziona almeno un file per iniziare l'analisi",
+        title: "Nessuna sorgente selezionata",
+        description: "Seleziona un file o inserisci un URL per iniziare l'analisi",
         variant: "destructive",
       });
       return;
@@ -34,16 +35,42 @@ const Index = () => {
     setResult(null);
 
     try {
-      const file = selectedFiles[0];
+      let fileName = '';
+      let fileType = '';
       let content = '';
 
-      if (file.type.startsWith('text/')) {
-        content = await file.text();
-      } else if (file.type.startsWith('image/')) {
-        const base64 = await fileToBase64(file);
-        content = base64;
-      } else if (file.type === 'application/pdf') {
-        content = 'PDF file uploaded for analysis';
+      if (selectedUrl) {
+        // Analyze from URL
+        fileName = selectedUrl;
+        
+        // Determine type from URL
+        if (selectedUrl.match(/\.(jpg|jpeg|png|gif|webp|bmp)$/i)) {
+          fileType = 'image/url';
+          content = selectedUrl;
+        } else if (selectedUrl.match(/\.(mp4|webm|ogg|mov)$/i)) {
+          fileType = 'video/url';
+          content = selectedUrl;
+        } else if (selectedUrl.match(/\.pdf$/i)) {
+          fileType = 'application/pdf';
+          content = selectedUrl;
+        } else {
+          fileType = 'text/html';
+          content = selectedUrl;
+        }
+      } else {
+        // Analyze from file
+        const file = selectedFiles[0];
+        fileName = file.name;
+        fileType = file.type;
+
+        if (file.type.startsWith('text/')) {
+          content = await file.text();
+        } else if (file.type.startsWith('image/')) {
+          const base64 = await fileToBase64(file);
+          content = base64;
+        } else if (file.type === 'application/pdf') {
+          content = 'PDF file uploaded for analysis';
+        }
       }
 
       // Stream the response
@@ -56,9 +83,10 @@ const Index = () => {
             'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
           },
           body: JSON.stringify({
-            fileName: file.name,
-            fileType: file.type,
+            fileName: fileName,
+            fileType: fileType,
             content: content,
+            isUrl: !!selectedUrl,
           }),
         }
       );
@@ -85,8 +113,8 @@ const Index = () => {
       let accumulatedText = '';
 
       setResult({
-        fileName: file.name,
-        fileType: file.type,
+        fileName: fileName,
+        fileType: fileType,
         analysis: '',
         timestamp: new Date(),
       });
@@ -110,8 +138,8 @@ const Index = () => {
               if (content) {
                 accumulatedText += content;
                 setResult({
-                  fileName: file.name,
-                  fileType: file.type,
+                  fileName: fileName,
+                  fileType: fileType,
                   analysis: accumulatedText,
                   timestamp: new Date(),
                 });
@@ -191,12 +219,15 @@ const Index = () => {
             </div>
 
             <div className="glass-effect p-1 rounded-2xl">
-              <FileUpload onFilesSelected={setSelectedFiles} />
+              <FileUpload 
+                onFilesSelected={setSelectedFiles}
+                onUrlSubmit={setSelectedUrl}
+              />
             </div>
 
             <Button
               onClick={analyzeFiles}
-              disabled={selectedFiles.length === 0 || isAnalyzing}
+              disabled={(selectedFiles.length === 0 && !selectedUrl) || isAnalyzing}
               className="w-full h-14 bg-gradient-to-r from-primary via-accent-purple to-accent-pink hover:shadow-[0_0_40px_hsl(217_91%_60%_/_0.5)] text-white font-semibold rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed group relative overflow-hidden"
             >
               <span className="relative z-10 flex items-center justify-center gap-2">

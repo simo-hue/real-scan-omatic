@@ -12,8 +12,8 @@ serve(async (req) => {
   }
 
   try {
-    const { fileName, fileType, content } = await req.json();
-    console.log('Analyzing file:', fileName, 'Type:', fileType);
+    const { fileName, fileType, content, isUrl } = await req.json();
+    console.log('Analyzing:', isUrl ? 'URL' : 'File', fileName, 'Type:', fileType);
 
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     if (!LOVABLE_API_KEY) {
@@ -23,29 +23,58 @@ serve(async (req) => {
 
     let messages: any[] = [];
 
-    if (fileType.startsWith('image/')) {
-      console.log('Processing image file');
+    if (fileType.startsWith('image/') || fileType === 'image/url') {
+      console.log('Processing image', isUrl ? 'from URL' : 'file');
+      
+      // For URLs, use the URL directly; for uploads, use base64
+      const imageContent = isUrl ? content : content;
+      
       messages = [
         {
           role: 'system',
-          content: 'Sei un esperto analista di immagini specializzato nel riconoscimento di deepfake e contenuti manipolati. Fornisci un\'analisi dettagliata e strutturata dell\'immagine in italiano, descrivendo: 1) Soggetti e oggetti principali 2) Possibili segni di manipolazione digitale (artefatti, incongruenze di illuminazione, texture anomale) 3) Composizione e layout 4) Colori e illuminazione 5) Autenticità percepita. Usa paragrafi chiari e separati. Sii specifico sui segnali di deepfake se presenti.',
+          content: 'Sei un esperto analista di immagini specializzato nel riconoscimento di deepfake e contenuti manipolati. Fornisci un\'analisi dettagliata e strutturata dell\'immagine in italiano, descrivendo: 1) Soggetti e oggetti principali 2) Possibili segni di manipolazione digitale (artefatti, incongruenze di illuminazione, texture anomale, bordi sfocati) 3) Composizione e layout 4) Colori e illuminazione 5) Autenticità percepita (0-100%). Usa paragrafi chiari e separati. Sii specifico sui segnali di deepfake se presenti.',
         },
         {
           role: 'user',
           content: [
             {
               type: 'text',
-              text: 'Analizza questa immagine in modo dettagliato, prestando particolare attenzione a possibili segni di manipolazione o generazione AI.',
+              text: 'Analizza questa immagine in modo dettagliato, prestando particolare attenzione a possibili segni di manipolazione, deepfake o generazione AI. Fornisci una percentuale di autenticità alla fine.',
             },
             {
               type: 'image_url',
               image_url: {
-                url: content,
+                url: imageContent,
               },
             },
           ],
         },
       ];
+    } else if (fileType === 'text/html') {
+      console.log('Processing webpage from URL');
+      
+      // Fetch webpage content
+      try {
+        const webResponse = await fetch(content);
+        if (!webResponse.ok) {
+          throw new Error(`Failed to fetch URL: ${webResponse.status}`);
+        }
+        const htmlContent = await webResponse.text();
+        
+        messages = [
+          {
+            role: 'system',
+            content: 'Sei un esperto analista web. Fornisci un\'analisi dettagliata del contenuto della pagina web in italiano, includendo: 1) Scopo e contenuto principale 2) Credibilità e affidabilità della fonte 3) Segnali di potenziale disinformazione 4) Stile e qualità del contenuto 5) Raccomandazioni. Usa paragrafi chiari e separati.',
+          },
+          {
+            role: 'user',
+            content: `Analizza il contenuto di questa pagina web in modo dettagliato:\n\nURL: ${fileName}\n\nContenuto:\n${htmlContent.substring(0, 8000)}`,
+          },
+        ];
+      } catch (fetchError) {
+        console.error('Error fetching URL:', fetchError);
+        throw new Error(`Impossibile accedere all'URL: ${fetchError instanceof Error ? fetchError.message : 'Errore sconosciuto'}`);
+      }
     } else if (fileType.startsWith('text/') || fileType === 'application/pdf') {
       console.log('Processing text/pdf file');
       messages = [
@@ -58,16 +87,17 @@ serve(async (req) => {
           content: `Analizza questo testo in modo dettagliato e strutturato:\n\n${content.substring(0, 4000)}`,
         },
       ];
-    } else if (fileType.startsWith('video/')) {
-      console.log('Processing video file');
+    } else if (fileType.startsWith('video/') || fileType === 'video/url') {
+      console.log('Processing video', isUrl ? 'URL' : 'file');
+      const videoRef = isUrl ? content : fileName;
       messages = [
         {
           role: 'system',
-          content: 'Sei un esperto analista video specializzato nel riconoscimento di deepfake. Fornisci suggerimenti dettagliati su cosa analizzare in un video in italiano, includendo: sincronizzazione labiale, movimenti oculari, coerenza dell\'illuminazione, artefatti digitali, e altri segnali di manipolazione.',
+          content: 'Sei un esperto analista video specializzato nel riconoscimento di deepfake. Fornisci suggerimenti dettagliati su cosa analizzare in un video in italiano, includendo: sincronizzazione labiale, movimenti oculari, battiti di ciglia, coerenza dell\'illuminazione frame-by-frame, artefatti digitali ai bordi del viso, texture della pelle, microespressioni, e altri segnali di manipolazione. Spiega anche come verificare l\'autenticità.',
         },
         {
           role: 'user',
-          content: `Fornisci un'analisi dettagliata e consigli per un file video chiamato: ${fileName}. Spiega quali segnali di deepfake cercare.`,
+          content: `Fornisci un'analisi dettagliata e consigli per verificare l'autenticità di questo video: ${videoRef}. Elenca tutti i segnali di deepfake da cercare e come identificarli.`,
         },
       ];
     } else {
