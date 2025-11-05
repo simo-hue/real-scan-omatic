@@ -63,11 +63,11 @@ serve(async (req) => {
           content: [
             {
               type: 'text',
-              text: `Analizza questa immagine e fornisci una risposta ESCLUSIVAMENTE in formato JSON valido, senza alcun testo aggiuntivo prima o dopo.
+              text: `Analizza questa immagine e fornisci una risposta ESCLUSIVAMENTE in formato JSON valido.
 
 Struttura richiesta:
 {
-  "description": "Descrizione BREVE in massimo 2-3 frasi di cosa mostra l'immagine (soggetti principali e contesto)",
+  "description": "MASSIMO 2 FRASI BREVI (max 150 caratteri totali). Descrivi solo: cosa mostra l'immagine e il contesto principale.",
   "evaluation": {
     "score": <numero intero da 0 a 100, dove 0 = sicuramente AI-generato/deepfake, 100 = sicuramente reale/autentico>,
     "verdict": "Probabilmente reale" oppure "Probabilmente AI-generato" oppure "Incerto",
@@ -75,7 +75,7 @@ Struttura richiesta:
   }
 }
 
-IMPORTANTE: Rispondi SOLO con JSON valido, nient'altro.`,
+CRITICO: La description deve essere BREVISSIMA (max 2 frasi, max 150 caratteri). Rispondi SOLO con JSON valido.`,
             },
             {
               type: 'image_url',
@@ -103,7 +103,7 @@ IMPORTANTE: Rispondi SOLO con JSON valido, nient'altro.`,
 
 Struttura richiesta:
 {
-  "description": "Riassunto BREVE in massimo 2-3 frasi del contenuto principale della pagina",
+  "description": "MASSIMO 2 FRASI BREVI (max 150 caratteri totali). Descrivi solo: argomento principale e tipo di contenuto.",
   "evaluation": {
     "score": <numero intero da 0 a 100, dove 0 = disinformazione certa, 100 = fonte completamente affidabile>,
     "verdict": "Affidabile" oppure "Sospetto" oppure "Disinformazione",
@@ -114,7 +114,7 @@ Struttura richiesta:
 URL: ${fileName}
 Contenuto: ${htmlContent.substring(0, 8000)}
 
-IMPORTANTE: Rispondi SOLO con JSON valido.`,
+CRITICO: La description deve essere BREVISSIMA (max 2 frasi, max 150 caratteri). Rispondi SOLO con JSON valido.`,
           },
         ];
       } catch (fetchError) {
@@ -130,7 +130,7 @@ IMPORTANTE: Rispondi SOLO con JSON valido.`,
 
 Struttura richiesta:
 {
-  "description": "Riassunto BREVE in massimo 2-3 frasi dei punti chiave del testo",
+  "description": "MASSIMO 2 FRASI BREVI (max 150 caratteri totali). Descrivi solo: tema principale del testo.",
   "evaluation": {
     "score": <numero intero da 0 a 100, dove 0 = sicuramente falso/disinformazione, 100 = completamente accurato e verificabile>,
     "verdict": "Accurato" oppure "Sospetto" oppure "Disinformazione",
@@ -140,7 +140,7 @@ Struttura richiesta:
 
 Testo: ${content.substring(0, 4000)}
 
-IMPORTANTE: Rispondi SOLO con JSON valido.`,
+CRITICO: La description deve essere BREVISSIMA (max 2 frasi, max 150 caratteri). Rispondi SOLO con JSON valido.`,
         },
       ];
     } else if (fileType.startsWith('video/') || fileType === 'video/url') {
@@ -153,7 +153,7 @@ IMPORTANTE: Rispondi SOLO con JSON valido.`,
 
 Struttura richiesta:
 {
-  "description": "Descrizione BREVE in massimo 2-3 frasi del contenuto del video basata su URL e nome file",
+  "description": "MASSIMO 2 FRASI BREVI (max 150 caratteri totali). Descrivi solo: tipo di video basato su URL/nome file.",
   "evaluation": {
     "score": <numero intero da 0 a 100, dove 0 = molto sospetto/deepfake probabile, 100 = probabilmente autentico>,
     "verdict": "Da verificare manualmente",
@@ -164,7 +164,7 @@ Struttura richiesta:
 Video: ${videoRef}
 
 Nota: L'analisi video completa richiede visione diretta. Fornisci una guida per l'analisi manuale dell'utente.
-IMPORTANTE: Rispondi SOLO con JSON valido.`,
+CRITICO: La description deve essere BREVISSIMA (max 2 frasi, max 150 caratteri). Rispondi SOLO con JSON valido.`,
         },
       ];
     } else {
