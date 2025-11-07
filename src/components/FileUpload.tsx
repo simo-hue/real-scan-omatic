@@ -321,25 +321,25 @@ export const FileUpload = ({ onFilesSelected, onUrlSubmit }: FileUploadProps) =>
   };
 
   return (
-    <div className="w-full space-y-6 p-6 bg-card/60 backdrop-blur-sm rounded-xl">
+    <div className="w-full space-y-4">
       <Tabs defaultValue="upload" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 glass-effect">
-          <TabsTrigger value="upload" className="flex items-center gap-2">
-            <Upload className="h-4 w-4" />
-            Upload File
+        <TabsList className="grid w-full grid-cols-2 h-8">
+          <TabsTrigger value="upload" className="text-xs">
+            <Upload className="h-3 w-3 mr-1" />
+            File
           </TabsTrigger>
-          <TabsTrigger value="url" className="flex items-center gap-2">
-            <LinkIcon className="h-4 w-4" />
-            Da URL
+          <TabsTrigger value="url" className="text-xs">
+            <LinkIcon className="h-3 w-3 mr-1" />
+            URL
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="upload" className="space-y-6 mt-6">
+        <TabsContent value="upload" className="space-y-3 mt-3">
           <div
-            className={`relative border-2 border-dashed rounded-xl transition-all duration-300 ${
+            className={`relative border-2 border-dashed rounded-lg transition-all duration-300 ${
               dragActive 
-                ? 'border-primary bg-primary/5 scale-[1.02] shadow-[0_0_30px_hsl(217_91%_60%_/_0.3)]' 
-                : 'border-border/50 bg-card/30 hover:border-primary/50 hover:bg-primary/5'
+                ? 'border-primary bg-primary/5' 
+                : 'border-border/50 bg-card/30 hover:border-primary/50'
             }`}
             onDragEnter={handleDrag}
             onDragLeave={handleDrag}
@@ -355,105 +355,72 @@ export const FileUpload = ({ onFilesSelected, onUrlSubmit }: FileUploadProps) =>
               disabled={isConverting}
             />
             
-            <div className="p-12 text-center space-y-4">
+            <div className="p-6 text-center space-y-2">
               <div className="flex justify-center">
-                <div className="p-6 bg-gradient-to-br from-primary/20 to-accent-purple/20 rounded-2xl backdrop-blur-sm border border-primary/20 animate-pulse-glow">
+                <div className="p-3 bg-primary/10 rounded-lg">
                   {isConverting ? (
-                    <Loader2 className="h-12 w-12 text-primary animate-spin" />
+                    <Loader2 className="h-8 w-8 text-primary animate-spin" />
                   ) : (
-                    <Upload className="h-12 w-12 text-primary" />
+                    <Upload className="h-8 w-8 text-primary" />
                   )}
                 </div>
               </div>
               
-              <div className="space-y-2">
-                <div className="text-xl font-semibold text-foreground">
-                  {isConverting ? 'Conversione in corso...' : 'Trascina i file qui'}
-                </div>
-                <div className="text-sm text-muted-foreground">
-                  {isConverting ? 'Attendi il completamento' : 'oppure clicca per selezionare'}
-                </div>
+              <div className="text-sm font-medium text-foreground">
+                {isConverting ? 'Conversione...' : 'Trascina file'}
               </div>
-              
-              <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
-                <div className="h-px w-8 bg-gradient-to-r from-transparent to-primary/50" />
-                <span>JPG • PNG • WEBP • HEIC • Video • PDF</span>
-                <div className="h-px w-8 bg-gradient-to-l from-transparent to-primary/50" />
+              <div className="text-xs text-muted-foreground">
+                {isConverting ? 'Attendi' : 'o clicca per selezionare'}
               </div>
               
               {isConverting && (
-                <div className="mt-6 space-y-3 px-8">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground font-medium">
-                      {currentConvertingFile ? `Conversione: ${currentConvertingFile}` : 'Elaborazione...'}
-                    </span>
-                    <span className="text-primary font-semibold">
-                      {Math.round(conversionProgress)}%
-                    </span>
-                  </div>
-                  <Progress value={conversionProgress} className="h-2" />
+                <div className="mt-3 space-y-2">
+                  <Progress value={conversionProgress} className="h-1" />
+                  <p className="text-xs text-muted-foreground">
+                    {Math.round(conversionProgress)}%
+                  </p>
                 </div>
               )}
             </div>
           </div>
 
           {selectedFiles.length > 0 && (
-            <div className="space-y-3">
-              <div className="text-sm font-semibold text-foreground flex items-center gap-2">
-                <div className="h-5 w-1 bg-gradient-to-b from-primary to-accent-purple rounded-full" />
-                File selezionati ({selectedFiles.length})
-              </div>
-              <div className="space-y-2">
+            <div className="space-y-2">
+              <p className="text-xs font-semibold text-foreground">
+                File ({selectedFiles.length})
+              </p>
+              <div className="space-y-1.5">
                 {selectedFiles.map((item, index) => (
                   <div
                     key={index}
-                    className="flex items-center gap-3 p-4 glass-effect rounded-xl hover:border-primary/50 transition-all duration-300 group hover:scale-[1.02]"
+                    className="flex items-center gap-2 p-2 bg-card/60 rounded-lg border border-border/50 group"
                   >
                     {item.preview ? (
-                      <div className="relative w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 border-2 border-primary/20">
+                      <div className="w-10 h-10 rounded overflow-hidden flex-shrink-0 border border-primary/20">
                         <img 
                           src={item.preview} 
                           alt={item.file.name}
                           className="w-full h-full object-cover"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                       </div>
                     ) : (
-                      <div className="p-2 bg-primary/10 rounded-lg text-primary flex-shrink-0">
+                      <div className="p-1.5 bg-primary/10 rounded text-primary flex-shrink-0">
                         {getFileIcon(item.file.type)}
                       </div>
                     )}
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-foreground truncate">
+                      <p className="text-xs font-medium text-foreground truncate">
                         {item.file.name}
                       </p>
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <span>{(item.file.size / 1024 / 1024).toFixed(2)} MB</span>
-                        {item.metadata?.width && item.metadata?.height && (
-                          <>
-                            <span>•</span>
-                            <span>{item.metadata.width} × {item.metadata.height}px</span>
-                          </>
-                        )}
-                        {item.metadata?.duration !== undefined && (
-                          <>
-                            <span>•</span>
-                            <span>{Math.floor(item.metadata.duration / 60)}:{String(Math.floor(item.metadata.duration % 60)).padStart(2, '0')} min</span>
-                          </>
-                        )}
-                        {item.metadata?.pageCount !== undefined && item.metadata.pageCount > 0 && (
-                          <>
-                            <span>•</span>
-                            <span>{item.metadata.pageCount} pagine</span>
-                          </>
-                        )}
-                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        {(item.file.size / 1024 / 1024).toFixed(2)} MB
+                      </p>
                     </div>
                     <button
                       onClick={() => removeFile(index)}
-                      className="p-2 hover:bg-destructive/10 rounded-lg transition-all duration-200 opacity-0 group-hover:opacity-100"
+                      className="p-1 hover:bg-destructive/10 rounded opacity-0 group-hover:opacity-100 transition-opacity"
                     >
-                      <X className="h-4 w-4 text-destructive" />
+                      <X className="h-3.5 w-3.5 text-destructive" />
                     </button>
                   </div>
                 ))}
@@ -462,52 +429,39 @@ export const FileUpload = ({ onFilesSelected, onUrlSubmit }: FileUploadProps) =>
           )}
         </TabsContent>
 
-        <TabsContent value="url" className="space-y-6 mt-6">
-          <form onSubmit={handleUrlSubmit} className="space-y-4">
-            <div className="glass-effect p-8 rounded-xl border border-border/50 space-y-4">
+        <TabsContent value="url" className="space-y-3 mt-3">
+          <form onSubmit={handleUrlSubmit} className="space-y-3">
+            <div className="space-y-2">
               <div className="flex justify-center">
-                <div className="p-6 bg-gradient-to-br from-accent-cyan/20 to-accent-purple/20 rounded-2xl backdrop-blur-sm border border-accent-cyan/20 animate-pulse-glow">
-                  <LinkIcon className="h-12 w-12 text-accent-cyan" />
+                <div className="p-3 bg-accent-cyan/10 rounded-lg">
+                  <LinkIcon className="h-8 w-8 text-accent-cyan" />
                 </div>
               </div>
-
-              <div className="space-y-2 text-center">
-                <div className="text-xl font-semibold text-foreground">
-                  Inserisci URL da analizzare
-                </div>
-                <div className="text-sm text-muted-foreground">
-                  Pagine web, immagini, video o documenti online
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Input
-                  type="url"
-                  value={urlInput}
-                  onChange={(e) => setUrlInput(e.target.value)}
-                  placeholder="https://esempio.com/immagine.jpg"
-                  className="glass-effect border-primary/30 focus:border-primary text-foreground"
-                  disabled={isValidatingUrl || !!acceptedUrl}
-                />
-                <div className="text-xs text-muted-foreground text-center">
-                  Supporta link diretti a immagini, video, pagine web e PDF
-                </div>
-              </div>
-
+              
+              <Input
+                type="url"
+                value={urlInput}
+                onChange={(e) => setUrlInput(e.target.value)}
+                placeholder="https://example.com/image.jpg"
+                className="text-xs h-9"
+                disabled={isValidatingUrl}
+              />
+              
               <Button
                 type="submit"
-                disabled={!urlInput.trim() || isValidatingUrl || !!acceptedUrl}
-                className="w-full bg-gradient-to-r from-accent-cyan via-accent-purple to-primary hover:opacity-90 transition-all"
+                disabled={!urlInput.trim() || isValidatingUrl}
+                className="w-full h-9 text-xs"
+                variant="secondary"
               >
                 {isValidatingUrl ? (
                   <>
-                    <Upload className="h-4 w-4 mr-2 animate-spin" />
+                    <Loader2 className="h-3 w-3 mr-1.5 animate-spin" />
                     Validazione...
                   </>
                 ) : (
                   <>
-                    <LinkIcon className="h-4 w-4 mr-2" />
-                    Aggiungi URL
+                    <CheckCircle2 className="h-3 w-3 mr-1.5" />
+                    Conferma URL
                   </>
                 )}
               </Button>
@@ -515,34 +469,24 @@ export const FileUpload = ({ onFilesSelected, onUrlSubmit }: FileUploadProps) =>
           </form>
 
           {acceptedUrl && (
-            <div className="space-y-3">
-              <div className="text-sm font-semibold text-foreground flex items-center gap-2">
-                <div className="h-5 w-1 bg-gradient-to-b from-accent-cyan to-accent-purple rounded-full" />
-                URL accettato
-              </div>
-              <div className="flex items-center gap-3 p-4 glass-effect rounded-xl border-2 border-accent-cyan/50 hover:border-accent-cyan transition-all duration-300 group bg-accent-cyan/5 animate-in fade-in slide-in-from-bottom-3 duration-500">
-                <div className="p-2 bg-accent-cyan/20 rounded-lg text-accent-cyan animate-pulse-glow">
-                  <CheckCircle2 className="h-5 w-5" />
+            <div className="p-3 bg-card/60 rounded-lg border border-border/50 group">
+              <div className="flex items-center gap-2">
+                <div className="p-1.5 bg-primary/10 rounded text-primary flex-shrink-0">
+                  <LinkIcon className="h-4 w-4" />
                 </div>
-                <div className="flex-1 min-w-0 space-y-1">
-                  <div className="flex items-center gap-2">
-                    <p className="text-sm font-medium text-foreground truncate">
-                      {acceptedUrl}
-                    </p>
-                    <Badge className="bg-accent-cyan/20 text-accent-cyan border-accent-cyan/30 text-xs">
-                      {getUrlType(acceptedUrl)}
-                    </Badge>
-                  </div>
-                  <p className="text-xs text-accent-cyan/80 font-medium flex items-center gap-1">
-                    <CheckCircle2 className="h-3 w-3" />
-                    Pronto per l'analisi
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-medium text-foreground truncate">
+                    {acceptedUrl}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {getUrlType(acceptedUrl)}
                   </p>
                 </div>
                 <button
                   onClick={removeUrl}
-                  className="p-2 hover:bg-destructive/10 rounded-lg transition-all duration-200 opacity-0 group-hover:opacity-100"
+                  className="p-1 hover:bg-destructive/10 rounded opacity-0 group-hover:opacity-100 transition-opacity"
                 >
-                  <X className="h-4 w-4 text-destructive" />
+                  <X className="h-3.5 w-3.5 text-destructive" />
                 </button>
               </div>
             </div>
