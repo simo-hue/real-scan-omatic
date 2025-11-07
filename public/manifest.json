@@ -1,0 +1,37 @@
+{
+  "manifest_version": 3,
+  "name": "Deepfake Detector",
+  "version": "1.0.0",
+  "description": "Analizza immagini, video e testi per rilevare deepfake e contenuti manipolati",
+  "icons": {
+    "16": "favicon.ico",
+    "48": "favicon.ico",
+    "128": "favicon.ico"
+  },
+  "action": {
+    "default_popup": "index.html",
+    "default_icon": {
+      "16": "favicon.ico",
+      "48": "favicon.ico",
+      "128": "favicon.ico"
+    }
+  },
+  "permissions": [
+    "activeTab",
+    "storage",
+    "contextMenus"
+  ],
+  "host_permissions": [
+    "https://*/*",
+    "http://*/*"
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["assets/*"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}
