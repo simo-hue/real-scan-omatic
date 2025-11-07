@@ -15,4 +15,20 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  build: {
+    rollupOptions: {
+      input: {
+        popup: path.resolve(__dirname, "index.html"),
+      },
+      output: {
+        entryFileNames: "assets/[name].js",
+        chunkFileNames: "assets/[name].js",
+        assetFileNames: "assets/[name].[ext]",
+      },
+    },
+    // Ottimizzazioni per estensioni Chrome
+    minify: true,
+    sourcemap: false,
+    chunkSizeWarningLimit: 1000,
+  },
 }));

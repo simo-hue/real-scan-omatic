@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Deepfake Detector",
+  "name": "RealityRadar - Deepfake Detector",
   "version": "1.0.0",
-  "description": "Analizza immagini, video e testi per rilevare deepfake e contenuti manipolati",
+  "description": "Analizza immagini, video e testi per rilevare deepfake e contenuti AI-generati con intelligenza artificiale avanzata",
   "icons": {
     "16": "favicon.ico",
     "48": "favicon.ico",
@@ -10,6 +10,7 @@
   },
   "action": {
     "default_popup": "index.html",
+    "default_title": "RealityRadar",
     "default_icon": {
       "16": "favicon.ico",
       "48": "favicon.ico",
@@ -18,19 +19,17 @@
   },
   "permissions": [
     "activeTab",
-    "storage",
-    "contextMenus"
+    "storage"
   ],
   "host_permissions": [
-    "https://*/*",
-    "http://*/*"
+    "https://*/*"
   ],
   "content_security_policy": {
-    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
+    "extension_pages": "script-src 'self'; object-src 'self'"
   },
   "web_accessible_resources": [
     {
-      "resources": ["assets/*"],
+      "resources": ["assets/*", "*.js", "*.css"],
       "matches": ["<all_urls>"]
     }
   ]
