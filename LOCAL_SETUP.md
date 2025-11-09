@@ -1,0 +1,631 @@
+# Local Development Setup Guide
+
+Complete guide for setting up RealityRadar on your local machine for development and testing.
+
+---
+
+## 📋 Table of Contents
+
+- [Prerequisites](#prerequisites)
+- [Initial Setup](#initial-setup)
+- [Environment Configuration](#environment-configuration)
+- [Running the Application](#running-the-application)
+- [Development Workflow](#development-workflow)
+- [Testing](#testing)
+- [Troubleshooting](#troubleshooting)
+- [Advanced Configuration](#advanced-configuration)
+
+---
+
+## 🔧 Prerequisites
+
+### Required Software
+
+#### 1. Node.js and npm
+**Minimum version**: Node.js v18.0.0 or higher
+
+**Installation with nvm (recommended)**:
+```bash
+# Install nvm
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+
+# Restart your terminal, then:
+nvm install 18
+nvm use 18
+nvm alias default 18
+
+# Verify installation
+node --version  # Should show v18.x.x or higher
+npm --version   # Should show 9.x.x or higher
+```
+
+**Alternative: Direct installation**
+- Download from [nodejs.org](https://nodejs.org/)
+- Choose LTS version (Long Term Support)
+
+#### 2. Git
+```bash
+# macOS (with Homebrew)
+brew install git
+
+# Ubuntu/Debian
+sudo apt-get install git
+
+# Windows
+# Download from https://git-scm.com/download/win
+
+# Verify installation
+git --version
+```
+
+#### 3. Package Manager (Optional)
+You can use **npm** (comes with Node.js) or **bun** for faster performance:
+
+```bash
+# Install bun (optional, but faster)
+curl -fsSL https://bun.sh/install | bash
+
+# Verify
+bun --version
+```
+
+### Recommended Tools
+
+- **VS Code** - [Download](https://code.visualstudio.com/)
+  - Extension: ESLint
+  - Extension: Prettier
+  - Extension: Tailwind CSS IntelliSense
+  - Extension: TypeScript Vue Plugin (Volar)
+  
+- **Chrome Browser** - For extension testing
+- **Postman** or **Insomnia** - For API testing (optional)
+
+---
+
+## 🚀 Initial Setup
+
+### 1. Clone the Repository
+
+```bash
+# Clone via HTTPS
+git clone https://lovable.dev/projects/d956ef8c-60bf-4f53-bde3-093bae0aa98f
+
+# Or clone via SSH (if configured)
+git clone git@github.com:yourusername/realityradar.git
+
+# Navigate to project directory
+cd realityradar
+```
+
+### 2. Install Dependencies
+
+```bash
+# Using npm (default)
+npm install
+
+# Or using bun (faster)
+bun install
+```
+
+**What gets installed:**
+- React and React DOM
+- TypeScript
+- Vite build tool
+- Tailwind CSS
+- shadcn/ui components
+- Supabase client
+- Analysis libraries (exifr, heic2any)
+- And 40+ other dependencies
+
+**Installation time**: ~2-5 minutes depending on your internet speed
+
+### 3. Verify Installation
+
+```bash
+# Check if node_modules was created
+ls -la node_modules
+
+# Verify package.json scripts
+npm run
+```
+
+You should see available scripts like `dev`, `build`, `preview`, etc.
+
+---
+
+## ⚙️ Environment Configuration
+
+### 1. Environment Variables
+
+RealityRadar uses environment variables for configuration. These are automatically provided in Lovable Cloud projects.
+
+**For local development**, create a `.env` file in the project root:
+
+```bash
+# Create .env file
+touch .env
+```
+
+Add the following variables:
+
+```env
+# Supabase Configuration (auto-configured in Lovable Cloud)
+VITE_SUPABASE_URL=https://ixsvjmofdzohiltskejt.supabase.co
+VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+VITE_SUPABASE_PROJECT_ID=ixsvjmofdzohiltskejt
+
+# Google Vision API (for reverse image search)
+GOOGLE_VISION_API_KEY=your_google_vision_api_key_here
+```
+
+### 2. Obtaining API Keys
+
+#### Google Vision API Key
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Create a new project or select existing one
+3. Enable **Cloud Vision API**:
+   - Navigate to "APIs & Services" > "Library"
+   - Search for "Cloud Vision API"
+   - Click "Enable"
+4. Create credentials:
+   - Go to "APIs & Services" > "Credentials"
+   - Click "Create Credentials" > "API Key"
+   - Copy the generated key
+5. Add to your `.env` file as `GOOGLE_VISION_API_KEY`
+
+#### Supabase Configuration
+
+If you're using your own Supabase project:
+
+1. Go to [Supabase Dashboard](https://app.supabase.com/)
+2. Create a new project
+3. Navigate to Project Settings > API
+4. Copy:
+   - **Project URL** → `VITE_SUPABASE_URL`
+   - **anon/public key** → `VITE_SUPABASE_ANON_KEY`
+   - **Project Reference ID** → `VITE_SUPABASE_PROJECT_ID`
+
+### 3. Supabase Setup (If using own instance)
+
+**Database Schema**:
+```sql
+-- This is auto-configured in Lovable Cloud
+-- Only needed if you're setting up your own Supabase instance
+
+-- Enable necessary extensions
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+-- Create tables (if needed)
+-- Note: Schema is managed through Supabase migrations
+```
+
+**Edge Functions**:
+```bash
+# Deploy edge functions (if using own Supabase)
+supabase functions deploy analyze-content
+supabase functions deploy reverse-search
+```
+
+### 4. Configuration Files
+
+The following files are pre-configured and should not be modified:
+
+- `.env` - Auto-generated by Lovable Cloud
+- `supabase/config.toml` - Supabase project configuration
+- `src/integrations/supabase/client.ts` - Supabase client (auto-generated)
+- `src/integrations/supabase/types.ts` - Database types (auto-generated)
+
+---
+
+## 🏃 Running the Application
+
+### Development Mode
+
+```bash
+# Start development server (with hot reload)
+npm run dev
+
+# Or with bun
+bun dev
+```
+
+**What happens:**
+- Vite development server starts
+- Application runs on `http://localhost:8080`
+- Hot Module Replacement (HMR) enabled
+- TypeScript type checking in watch mode
+- Automatic browser refresh on file changes
+
+**Console output:**
+```
+  VITE v5.0.0  ready in 432 ms
+
+  ➜  Local:   http://localhost:8080/
+  ➜  Network: http://192.168.1.100:8080/
+  ➜  press h to show help
+```
+
+### Access the Application
+
+1. Open your browser
+2. Navigate to `http://localhost:8080`
+3. You should see the RealityRadar interface
+
+### Production Build (Local Testing)
+
+```bash
+# Build for production
+npm run build
+
+# Preview production build
+npm run preview
+```
+
+The preview server will run on `http://localhost:4173`
+
+---
+
+## 💻 Development Workflow
+
+### Project Structure Overview
+
+```
+src/
+├── components/          # React components
+│   ├── ui/             # Reusable UI components (shadcn)
+│   ├── FileUpload.tsx  # File upload component
+│   ├── AnalysisResult.tsx
+│   └── ...
+├── pages/              # Application pages
+│   └── Index.tsx       # Main page
+├── utils/              # Utility functions
+│   ├── exifExtractor.ts
+│   ├── elaAnalyzer.ts
+│   └── fftAnalyzer.ts
+├── integrations/       # External service integrations
+│   └── supabase/
+├── hooks/              # Custom React hooks
+├── lib/                # Shared libraries
+├── assets/             # Static assets (images, etc.)
+└── main.tsx           # Application entry point
+```
+
+### Making Changes
+
+1. **Edit files** in your preferred code editor
+2. **Save changes** - Vite will automatically reload
+3. **Check browser** for instant updates
+4. **Check console** for errors or warnings
+
+### Code Style
+
+The project uses:
+- **ESLint** - For code linting
+- **Prettier** - For code formatting (optional)
+- **TypeScript** - For type safety
+
+**Run linting:**
+```bash
+npm run lint
+```
+
+**Fix auto-fixable issues:**
+```bash
+npm run lint -- --fix
+```
+
+### Component Development
+
+Example workflow for creating a new component:
+
+```bash
+# 1. Create new component file
+touch src/components/MyNewComponent.tsx
+
+# 2. Add component code
+# src/components/MyNewComponent.tsx
+```
+
+```typescript
+import React from 'react';
+
+interface MyNewComponentProps {
+  title: string;
+}
+
+export const MyNewComponent: React.FC<MyNewComponentProps> = ({ title }) => {
+  return (
+    <div className="p-4 rounded-lg bg-background border border-border">
+      <h2 className="text-xl font-semibold text-foreground">{title}</h2>
+    </div>
+  );
+};
+```
+
+```typescript
+// 3. Import and use in your page
+import { MyNewComponent } from '@/components/MyNewComponent';
+
+// In your component JSX:
+<MyNewComponent title="Hello World" />
+```
+
+---
+
+## 🧪 Testing
+
+### Manual Testing
+
+1. **Image Analysis**:
+   - Upload an image via drag-and-drop
+   - Upload via URL
+   - Check EXIF metadata extraction
+   - Verify ELA analysis heatmap
+   - Test FFT analysis results
+
+2. **Chrome Extension**:
+   - Build extension: `npm run build`
+   - Load in Chrome: `chrome://extensions/`
+   - Test popup interface
+   - Verify compact layout
+
+3. **Quiz Feature**:
+   - Navigate to quiz section
+   - Complete quiz questions
+   - Check score calculation
+
+### Testing with Sample Data
+
+```bash
+# Sample images for testing are located in:
+src/assets/quiz/
+├── deepfake-celebrity.jpg
+├── deepfake-ceo.jpg
+├── real-family.jpg
+└── ...
+```
+
+### API Testing
+
+**Test Edge Functions**:
+
+```bash
+# Analyze content
+curl -X POST http://localhost:54321/functions/v1/analyze-content \
+  -H "Content-Type: application/json" \
+  -d '{"type": "image", "content": "base64_image_data_here"}'
+
+# Reverse image search
+curl -X POST http://localhost:54321/functions/v1/reverse-search \
+  -H "Content-Type: application/json" \
+  -d '{"image": "base64_image_data_here"}'
+```
+
+---
+
+## 🔧 Troubleshooting
+
+### Common Issues
+
+#### 1. Port Already in Use
+
+**Error**: `Port 8080 is already in use`
+
+**Solution**:
+```bash
+# Find process using port 8080
+lsof -i :8080
+
+# Kill the process
+kill -9 <PID>
+
+# Or use a different port
+npm run dev -- --port 3000
+```
+
+#### 2. Module Not Found
+
+**Error**: `Cannot find module 'xyz'`
+
+**Solution**:
+```bash
+# Clear node_modules and reinstall
+rm -rf node_modules
+rm package-lock.json
+npm install
+```
+
+#### 3. TypeScript Errors
+
+**Error**: Type errors in IDE or terminal
+
+**Solution**:
+```bash
+# Restart TypeScript server (in VS Code)
+# Cmd/Ctrl + Shift + P → "TypeScript: Restart TS Server"
+
+# Or rebuild types
+npm run build
+```
+
+#### 4. Supabase Connection Issues
+
+**Error**: `Failed to fetch` or connection errors
+
+**Solution**:
+```bash
+# Check .env file exists and has correct values
+cat .env
+
+# Verify Supabase URL is accessible
+curl https://ixsvjmofdzohiltskejt.supabase.co
+
+# Check if edge functions are deployed
+# (In Lovable Cloud, this is automatic)
+```
+
+#### 5. Chrome Extension Not Loading
+
+**Error**: Extension fails to load in Chrome
+
+**Solution**:
+```bash
+# Ensure production build
+npm run build
+
+# Check dist/ folder exists
+ls -la dist/
+
+# Verify manifest.json in dist/
+cat dist/manifest.json
+
+# In Chrome:
+# 1. Remove old extension
+# 2. Reload extension
+# 3. Check Chrome console for errors
+```
+
+#### 6. EXIF Data Not Extracting
+
+**Error**: EXIF metadata shows as empty
+
+**Possible causes**:
+- Image has no EXIF data (common for screenshots, edited images)
+- Image format not supported (try JPG/PNG)
+- File corrupted
+
+**Solution**:
+```bash
+# Test with known EXIF image
+# Use a photo from a digital camera
+# Check console for error messages
+```
+
+#### 7. Build Errors
+
+**Error**: Build fails with various errors
+
+**Solution**:
+```bash
+# Clear cache and rebuild
+rm -rf node_modules .vite dist
+npm install
+npm run build
+```
+
+### Getting Help
+
+If issues persist:
+
+1. **Check console logs** in browser DevTools (F12)
+2. **Check terminal output** for error messages
+3. **Search GitHub issues** for similar problems
+4. **Create a new issue** with:
+   - Error message
+   - Steps to reproduce
+   - Environment details (OS, Node version, etc.)
+
+---
+
+## 🔬 Advanced Configuration
+
+### Custom Vite Configuration
+
+Edit `vite.config.ts` for custom build settings:
+
+```typescript
+export default defineConfig({
+  server: {
+    port: 3000,        // Custom port
+    host: true,        // Expose to network
+    open: true,        // Auto-open browser
+  },
+  build: {
+    outDir: 'dist',
+    sourcemap: true,   // Enable source maps
+  },
+});
+```
+
+### Tailwind Customization
+
+Edit `tailwind.config.ts` to customize design system:
+
+```typescript
+export default {
+  theme: {
+    extend: {
+      colors: {
+        // Custom colors
+        brand: {
+          primary: 'hsl(var(--primary))',
+          secondary: 'hsl(var(--secondary))',
+        },
+      },
+    },
+  },
+};
+```
+
+### Environment-Specific Configs
+
+Create multiple environment files:
+
+```bash
+.env                 # Default
+.env.local          # Local overrides (gitignored)
+.env.development    # Development-specific
+.env.production     # Production-specific
+```
+
+### Supabase Local Development
+
+```bash
+# Install Supabase CLI
+npm install -g supabase
+
+# Start local Supabase
+supabase start
+
+# This starts:
+# - PostgreSQL database
+# - Edge Functions runtime
+# - Studio UI (http://localhost:54323)
+
+# Update .env to point to local Supabase
+VITE_SUPABASE_URL=http://localhost:54321
+```
+
+---
+
+## 📝 Next Steps
+
+After setting up locally:
+
+1. **Explore the codebase** - Familiarize yourself with components
+2. **Try the quiz** - Test deepfake detection skills
+3. **Upload test images** - Verify analysis features
+4. **Build the extension** - Test Chrome extension build
+5. **Read technical docs** - Deep dive into algorithms ([TECHNICAL.md](./docs/TECHNICAL.md))
+6. **Check architecture** - Understand system design ([ARCHITECTURE.md](./docs/ARCHITECTURE.md))
+
+---
+
+## 🤝 Contributing
+
+Ready to contribute? See [DEVELOPMENT.md](./docs/DEVELOPMENT.md) for:
+- Code style guidelines
+- Commit message conventions
+- Pull request process
+- Testing requirements
+
+---
+
+<div align="center">
+
+**Happy Coding! 🚀**
+
+[Back to Main README](./README.md) | [View Documentation](./docs/) | [Report Issue](https://github.com/yourusername/realityradar/issues)
+
+</div>
