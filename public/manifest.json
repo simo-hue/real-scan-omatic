@@ -8,6 +8,9 @@
     "48": "favicon.ico",
     "128": "favicon.ico"
   },
+  "background": {
+    "service_worker": "background.js"
+  },
   "action": {
     "default_popup": "index.html",
     "default_title": "RealityRadar",
@@ -19,7 +22,8 @@
   },
   "permissions": [
     "activeTab",
-    "storage"
+    "storage",
+    "contextMenus"
   ],
   "host_permissions": [
     "https://*/*"
